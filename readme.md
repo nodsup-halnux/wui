@@ -38,6 +38,9 @@ objects
 
 An implementation of such a state is below:
 
+####  Direct Format:
+
+
 ```
 +$  boarddims  [rows=@ud cols=@ud]
 +$  squaretypes  $?  %grass  %water  %forest  %bog  ==
@@ -65,21 +68,50 @@ with our `board` object (for a 2 x 2 board), looking as follows:
 ]
 ```
 
+#### Alternative format:
 
+We can shorten our structures as follows. Instead of specifying 
+dimension cells - and all sorts of bounds - we can simply have a map
+from board-coordinates to a cell strucutre. The bounds are implicit
+in that we just have a (list (list [struct])) to traverse as normal.
 
+An example of such a format is below:
 
-
-
-####  Direct Format:
+```
++$  coordinate [row=@ud col=@ud]
++$  squaretypes  $?  %grass  %water  %forest  %bog  ==
++$  tokentypes  $?  %mage  %cleric  %knight  %peon  %none  ==
++$  tlist  (list tokentypes)
++$  boardsquare  [stype=boardsquare tl=tlist]
++$  board  (map coordinate boardsquare)
 
 ```
 
+And a 2 x 2 board example (using similar player structures as before)
+can be seen below:
 
-
-
+```
+~[ 
+	~[ 	[stype=%grass tl=[%knight %knight ~]]
+		[stype=%water tl=[%cleric ~]]
+		
+	~[ 	[stype=%forest tl=[%peon %peon %peon ~]]
+		[stype=%bog tl=[%mage %knight ~]]
+]
 
 
 ```
+
+In general, either of the two strucutres formats can be used for our
+library.  As long as the sub-structures (for pieces and tiles and players)
+is properly defined, we should be able to produce a ;* loop in Sail,
+or a |- trap in tui to render our results to the user.
+
+
+
+
+
+
 
 
 
