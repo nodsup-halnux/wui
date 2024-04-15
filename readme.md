@@ -107,16 +107,52 @@ library.  As long as the sub-structures (for pieces and tiles and players)
 is properly defined, we should be able to produce a ;* loop in Sail,
 or a |- trap in tui to render our results to the user.
 
+In order to implement both tools, the overall codebase must be implemented as a library - that will be imported by a student's Gall App. 
+
+Appropriately, I name the library **"TWUI" or "Terminal & Web User Interface"**.
+
+#### Board Game Renderer (in Terminal) "t-ui":
+
+The board game terminal renderer will accessed via a gate call `(boardprint ... )`.
+
+Practically, it will exist as a main gate call with a series of support arms.
+
+Various parameters can be specified, or default values are used if a default structure is provided as input.  No board inputs are given in the game call, as our scry functionality should handle this automatically.
+
+See the `/desk/gameuis/gen/tui.hoon` file for a basic sample.
+
+#### Renderer (in Web Browser) "w-ui":
+
+The core of this is based on the minimum implementation of the Squad App - in which we handle page serving (via Get Request) using the ++on-poke arm, and bind a basic url to our app using an Arvo call:  `(~(arvo pass:agentio /bind) %e %connect /'gameuis %gameuis)`
+
+Essentially, students will navigate to the bound url via Landscape (example: http:localhost:8080/wui, running out of a fakezod), and simply refresh the page.  This will result in a GET request handled by the ++on-poke arm, which will run a Sail page (which generates our board as a $manx XML structure), which is tranformed into HTML that is sent back to the browser.
+
+See the `/frontend/fe-board.hoon` and `gameuis.hoon` files in `/desk/gameuis/app/` for a sample of this code.
 
 
 
 
 
+Questions:
+
+1) Describe the new curriculum for ASL in brief.
 
 
 
+2) Are the students developing one boardgame througout ASL, or many different board games?
+    - I need some user stories here, to visualize what you want more.
+
+3) Boardgame format has been finalized (map coordinate  -->  boardsquare)
+
+4) Who is championing this grant?
+
+5)  Is a wrapper library implementation (similar to +dbug) suitable for this?
 
 
+WUI:  Usage of Sail FE to display the FE. Students will navigate to localhost:8080/<appname> and just refresh the page to view their current board.
+    - 
 
-
+TUI: A lot of gate logic to format a dill terminal, or custom usage of the %homunculus code. Not sure what...yet.
+    - Neal's minesweeper.
+	
 
