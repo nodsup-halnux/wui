@@ -1,6 +1,6 @@
 :: first we import our /sur/squad.hoon type definitions and expose them directly
 ::
-/-  *ourapp
+/-  *ttt
 :: our front-end takes in the bowl from our agent and also our agent's state
 ::
 |=  [bol=bowl:gall] :: =page gameboard=board playmap=playerinfo]
@@ -22,7 +22,7 @@
 
 ;html
   ;head
-    ;title: gameui
+    ;title: tictactoe
     ;meta(charset "utf-8");
     ;style
       ;+  ;/  style

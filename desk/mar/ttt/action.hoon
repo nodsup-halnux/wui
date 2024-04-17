@@ -1,4 +1,4 @@
-/-  *gameuis
+/-  *ttt
 |_  act=action
 ++  grow
   |%
@@ -13,8 +13,7 @@
     ^-  action
     %.  jon
     %-  of
-    :~  [%push (ot ~[target+(se %p) value+ni])]
-        [%pop (se %p)]
+    :~ 
         [%teststate (se %p)]
         [%clearstate (se %p)]
     ==

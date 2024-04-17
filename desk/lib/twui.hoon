@@ -1,6 +1,6 @@
-/-  *ourapp
+/-  *ttt
 /+  default-agent, agentio
-/=  indexdebug  /app/frontend/indexdebug
+/=  frontpage  /app/frontend/frontpage
 
 |%
 ++  agent  
@@ -14,11 +14,11 @@
           ag    ~(. agent bowl)
           default  ~(. (default-agent this %|) bowl)
       ++  on-init
-          ~&  "saildebug on-init called"
+          ~&  "twui on-init called"
           :: We don't use (quip card this), as we don't have a structure def core
           :: up top - system defs are used instead.
           ^-  (quip card:agent:gall agent:gall)
-          :_  this  [(~(arvo pass:agentio /bind) %e %connect `/'indexdebug' %ourapp)]~
+          :_  this  [(~(arvo pass:agentio /bind) %e %connect `/'frontpage' %ttt)]~
           ::=^  cards  agent  on-init:ag  [cards this]
       ++  on-save   on-save:ag
       ++  on-load
@@ -86,7 +86,7 @@
       ++  on-peek   |=(path ~)
       ++  on-watch
         |=  =path
-        ~&  "saildebug on-watch called"
+        ~&  "twui on-watch called"
           ^-  (quip card:agent:gall agent:gall)
           =^  cards  agent  (on-watch:ag path)  [cards this]
       ++  on-leave

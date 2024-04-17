@@ -1,23 +1,21 @@
 :: This app uses the %squad page serving/index.hoon code, and %charlie as a Gall App template.
 :: Our structure file. Standard action/update pattern is also used (in /mar)
-/-  *ourapp
-/+  default-agent, agentio, saildebug
+/-  *ttt
+/+  default-agent, agentio, twui
 ::Import FE file that we will serve up in ++on-poke
-/=  indexdebug  /app/frontend/indexdebug
+/=  frontpage  /app/frontend/frontpage
 |%
     +$  versioned-state
     $%  state-0
     ==
     +$  state-0
         :: A very basic state to test Sail with.
-    $:  [%0 values=(list @ud) gameboard=board playmap=playerinfo]
+    $:  [%0 gameboard=board]
     ==
     +$  card  card:agent:gall
 --
-
 ::We call the agent arm from the core in the saildebug library
-
-%-  agent:saildebug
+%-  agent:twui
 
 :: Note this is the **input** to the %- call above.
 =|  state-0
@@ -28,9 +26,10 @@
 +*  this     .
     default  ~(. (default-agent this %|) bowl)
   ++  on-init  
-    ~&  "ourapp on-init called"
+
+    ~&  "twui on-init called"
     ^-  (quip card _this)  ::do we need the alias (io for agentio??) [!!!]
-    :_  this  [(~(arvo pass:agentio /bind) %e %connect `/'indexdebug' %ourapp)]~
+    :_  this  [(~(arvo pass:agentio /bind) %e %connect `/'frontpage' %ourapp)]~
 ++  on-save   !>(state)
 ++  on-load  
   |=  old=vase
@@ -48,24 +47,22 @@
             |=  act=action
                 ^-  (quip card _this)
                 ?-    -.act
-                    ::Dummied, remove later
-                    %push  `this
-                    %pop  `this
                     ::Here, we set a basic state using a poke via the terminal. This will test our Sail render gates
                     %teststate
-                    ~&  "Our App has received a teststate poke"  
-                    =/  p1  ^-  player  [~nodsup-sorlex 1 %spade %red]
-                    =/  p2  ^-  player  [~miglex-todsup 2 %diamond %green]
-                    =/  row1  ^-  boardrow  ~[[%white %empty] [%black %spade] [%white %diamond]]
-                    =/  row2  ^-  boardrow  ~[[%black %spade] [%white %diamond] [%black %diamond]]
-                    =/  row3  ^-  boardrow  ~[[%white %spade] [%black %empty] [%white %empty]]
+                    ~&  "TTT has received a teststate poke. Set the board"  
+                    =/  row1  ^-  boardrow  ~[[%o] [%e] [%e]]
+                    =/  row2  ^-  boardrow  ~[[%o] [%x] [%x]]
+                    =/  row3  ^-  boardrow  ~[[%e] [%e] [%e]]
                     =/  theboard  ^-  board  ~[row1 row2 row3]
-                    =/  theplayermap  (my ~[[1 p1] [2 p2]])
-                    :_  %=  this  playmap  theplayermap  gameboard  theboard  ==  ~
+                    :_  %=  this  gameboard  theboard  ==  ~
                     ::The state can also be reset with a poke, should be choose to. Tests the Sail Null Case.
                     %clearstate
-                    ~&  "Our App has received a clearstate poke"
-                    :_  %=  this  playmap  *playerinfo  gameboard  *board  ==  ~
+                    ~&  "TTT has received a clearstate poke. Empty the board."
+                    =/  row1  ^-  boardrow  ~[[%e] [%e] [%e]]
+                    =/  row2  ^-  boardrow  ~[[%e] [%e] [%e]]
+                    =/  row3  ^-  boardrow  ~[[%e] [%e] [%e]]
+                    =/  theboard  ^-  board  ~[row1 row2 row3]
+                    :_  %=  this  gameboard  theboard  ==  ~
                 == ::End ?-
     --  ::End |^
 ++  on-peek  on-peek:default

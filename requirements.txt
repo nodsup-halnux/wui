@@ -1,0 +1,38 @@
+Requirements for TWUI:
+
+For the purposes of these requirements, assume students are making a Tic Tac Toe board:
+
+
+- The user **should** only do the following to interact with twui:
+  
+  1)  Import twui as a wrapper, taking in their agent as an argument (using %-)
+  
+  2)  Follow a standard format for the project state:
+        - App Name
+        - Player Names (~zod, ~fes)
+        - Board Map [coordinates]  -> Board Square
+        - Square %TypeUnion (~, X, O)
+        - Other Information (Ignored by TWUI).
+        
+
+-  TWUI must have access to the app state, and the app itself.
+
+-  TWUI must implement all 10 app arms, and route calls to the app if necessary.
+
+-  Like DBUG, all calls to TWUI will be %marked so that users can interact with it, or the app.
+
+    1) Specifically, the %handle-http-request must be marked. 
+
+-  The TWUI library must handle the front-end web page:
+
+    1)  It must make the %arvo connect call using its ++on-init arms
+    2)  It must handle the http server requests, via the ++on-poke arm.  It will also accept other pokes (for the tic tac toe) app,
+    and pass them onto the main app.
+    
+    
+So then the Composure is as follows:  (%- twui   (|%  state  (|_ User App  )))
+
+Why does this work?  When we compose cores, the last core to be compiled has the cores above it stored in its subject tree.
+The cores deep inside the tree cannot access the ones at the top.  So we need TWUI to be able to read the app state, and route to the app itself (be aware of its door and 10 arms).  Normally, this would mean TWUI is placed at the end, if we choose to compose.
+
+Another Method is to make a gate with an ++agent arm, and feed in the core and 
