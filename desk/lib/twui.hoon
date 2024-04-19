@@ -5,26 +5,29 @@
 |%
 ++  agent  
     ::  input a gall agent
-    |=  =agent:gall
+    |=  game=agent:gall
     ::  return a gall agent
     ^-  agent:gall
-    |_  =bowl:gall
+    |_  bol=bowl:gall
         :: agent sample above is fed a bowl, and ref'ed by ag.
       +*  this  .
-          ag    ~(. agent bowl)
-          default  ~(. (default-agent this %|) bowl)
+          ::This is cen-sig! go to arm and modifying.
+          ::refers to line 6
+          ag    ~(. game bol)
+          default  ~(. (default-agent this %|) bol)
       ++  on-init
           ~&  "twui on-init called"
           :: We don't use (quip card this), as we don't have a structure def core
           :: up top - system defs are used instead.
           ^-  (quip card:agent:gall agent:gall)
-          :_  this  [(~(arvo pass:agentio /bind) %e %connect `/'frontpage' %ttt)]~
+          :_  this  [(~(arvo pass:agentio /bind) %e %connect `/'ttt' %ttt)]~
           ::=^  cards  agent  on-init:ag  [cards this]
       ++  on-save   on-save:ag
       ++  on-load
         |=  old-state=vase
           ^-  (quip card:agent:gall agent:gall)
-          =^  cards  agent  (on-load:ag old-state)  [cards this]
+          ~&  "twui on-load called"
+          =^  cards  game  (on-load:ag old-state)  [cards this]
       ::  Poke Arm - most fleshed out because we interact this way
       ++  on-poke
         |=  [=mark =vase]
@@ -32,9 +35,10 @@
           |^ 
             ::Our $-arm
             ^-  (quip card:agent:gall agent:gall)
+            ~&  "twui on-poke called"
             ?+  mark              
-                :: Null Case, just pass through!
-                =^  cards  agent  (on-poke:ag mark vase)  [cards this]
+                :: [!!!] Null Case, just pass through!
+                =^  cards  game  (on-poke:ag mark vase)  [cards this]
                 :: Else, its an httprequest, deal with it.
                 %handle-http-request
                 :: We don't even need this in a separate arm. 
@@ -61,7 +65,9 @@
                         (some (as-octs:mimes:html '<h1>405 Method Not Allowed</h1>'))
                     
                         %'GET'
-                        :_  this  (make-200 rid (indexdebug bowl))
+                        :: board ((q:(need (need (on-peek:ag /x/dbug/state))))) -.+.game
+                        :: reminder: peek produces a unit unit cage.
+                        :_  this  (make-200 rid (frontpage bol !<(state on-save:ag))) 
                     == ::End ?+ and End arm
             ++  make-200
               |=  [rid=@ta dat=octs]
@@ -88,23 +94,25 @@
         |=  =path
         ~&  "twui on-watch called"
           ^-  (quip card:agent:gall agent:gall)
-          =^  cards  agent  (on-watch:ag path)  [cards this]
+          =^  cards  game  (on-watch:ag path)  [cards this]
       ++  on-leave
         |=  =path
         ^-  (quip card:agent:gall agent:gall)
-          =^  cards  agent  (on-leave:ag path)  [cards this]
+          =^  cards  game  (on-leave:ag path)  [cards this]
         ++  on-agent
         |=  [=wire =sign:agent:gall]
           ^-  (quip card:agent:gall agent:gall)
-          =^  cards  agent  (on-agent:ag wire sign)  [cards this]
+          ~&  "twui on-watch called"
+          =^  cards  game  (on-agent:ag wire sign)  [cards this]
       :: Pass Through
         ++  on-arvo
         |=  [=wire =sign-arvo]
           ^-  (quip card:agent:gall agent:gall)
-          =^  cards  agent  (on-arvo:ag wire sign-arvo)  [cards this]
+          ~&  "twui on-watch called"
+          =^  cards  game  (on-arvo:ag wire sign-arvo)  [cards this]
       ++  on-fail
         |=  [=term =tang]
           ^-  (quip card:agent:gall agent:gall)
-          =^  cards  agent  (on-fail:ag term tang)  [cards this]
+          =^  cards  game  (on-fail:ag term tang)  [cards this]
     --
 --

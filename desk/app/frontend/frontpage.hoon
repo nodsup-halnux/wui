@@ -1,9 +1,9 @@
-:: first we import our /sur/squad.hoon type definitions and expose them directly
+:: first we import our /sur/ttt.hoon type definitions and expose them directly
 ::
 /-  *ttt
 :: our front-end takes in the bowl from our agent and also our agent's state
 ::
-|=  [bol=bowl:gall] :: =page gameboard=board playmap=playerinfo]
+|=  [bol=bowl:gall gamestate=*] ::   =page  playmap=playerinfo]
 :: 5. we return an $octs, which is the encoded body of the HTTP response and its byte-length
 ::
 |^  ^-  octs
@@ -31,7 +31,7 @@
   ;body
     ;h1: Our Sample Tic-Tac-Toe Board:
     ;h2: This page uses the ~nodsup-halnux default color scheme.
-    ;div.whitesquare: {<wex.bol>}
+    ;div.whitesquare: {<gamestate>}
   == ::body
 == ::html
 ++  style
@@ -89,7 +89,6 @@
       color: black;
       cursor: pointer;
     }
-
 
     '''
 --
