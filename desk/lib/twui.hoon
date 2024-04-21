@@ -3,6 +3,9 @@
 /=  frontpage  /app/frontend/frontpage
 
 |%
++$  statecell      
+  $:  [%0 gameboard=board]
+  ==
 ++  agent  
     ::  input a gall agent
     |=  game=agent:gall
@@ -64,10 +67,13 @@
                             ==
                         (some (as-octs:mimes:html '<h1>405 Method Not Allowed</h1>'))
                     
-                        %'GET'
+                           %'GET'
                         :: board ((q:(need (need (on-peek:ag /x/dbug/state))))) -.+.game
                         :: reminder: peek produces a unit unit cage.
-                        :_  this  (make-200 rid (frontpage bol !<(state on-save:ag))) 
+                        =/  mystate  on-save:ag  ~&  mystate
+                        =/  extstate  !<(statecell on-save:ag)  
+                        ?~  gameboard.extstate  !!
+                        :_  this  (make-200 rid (frontpage bol gameboard.extstate))  ::!<(state on-save:ag)
                     == ::End ?+ and End arm
             ++  make-200
               |=  [rid=@ta dat=octs]

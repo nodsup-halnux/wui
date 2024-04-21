@@ -8,12 +8,14 @@
   ==
 +$  page  [sect=@t success=?]
 ::Rudimentary board structures
-+$  boarddims  [rows=@ud cols=@ud]
++$  dims  [rows=@ud cols=@ud]
++$  coord  [x=@ud y=@ud]
 ::  An X, an O or Empty (E)
 +$  tokentype  $?  %x  %o  %e  ==
-+$  boardsquare  [ppiece=tokentype]
-+$  boardrow  (list boardsquare)
++$  square  [mark=tokentype]
++$  boardrow  (list tokentype)
 +$  board  (list boardrow)
++$  boardmap  (map coord square)
 ::For players
 :: Dont even need player data. Make it simple!
 ::+$  player  [name=@p pnum=@ud token=tokentypes colour=colours]

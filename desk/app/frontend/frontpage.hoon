@@ -3,7 +3,7 @@
 /-  *ttt
 :: our front-end takes in the bowl from our agent and also our agent's state
 ::
-|=  [bol=bowl:gall gamestate=*] ::   =page  playmap=playerinfo]
+|=  [bol=bowl:gall gboard=board] ::   =page  playmap=playerinfo]
 :: 5. we return an $octs, which is the encoded body of the HTTP response and its byte-length
 ::
 |^  ^-  octs
@@ -31,7 +31,23 @@
   ;body
     ;h1: Our Sample Tic-Tac-Toe Board:
     ;h2: This page uses the ~nodsup-halnux default color scheme.
-    ;div.whitesquare: {<gamestate>}
+    ;p
+      ;*  ?~  gboard  !!
+        %+  turn  gboard  
+          |=  row=boardrow
+            ;div.board
+              ;*  ?~  row  !!
+                %+  turn  row
+                  |=  q=tokentype  
+                    =/  symbol  
+                      ?-  q
+                        %o  "⭘"
+                        %e  "_"
+                        %x  "⨯"
+                      ==
+                    ;div.whitesquare: {symbol}
+            ==  ::div board row
+    ==  :: p
   == ::body
 == ::html
 ++  style
@@ -45,10 +61,10 @@
     div {font-size: 16pt;}
 
     .board {
+      margin-top: 5px;
       display: grid;
       grid-template-columns: repeat(3, 500px);
-      grid-template-rows: repeat(3, 250px);
-      gap: 5px;
+      column-gap: 5px;
     }
 
     .square {
@@ -68,7 +84,6 @@
       width: 500px;
       height: 250px;
       background-color: black;
-      display: flex;
       align-items: center;
       justify-content: center;
       font-size: 48px;
@@ -81,10 +96,10 @@
       width: 500px;
       height: 250px;
       background-color: white;
+      font-size: 48px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 48px;
       font-weight: bold;
       color: black;
       cursor: pointer;
