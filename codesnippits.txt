@@ -1,0 +1,67 @@
+
+                        %'GET'
+                        :: board ((q:(need (need (on-peek:ag /x/dbug/state))))) -.+.game
+                        :: reminder: peek produces a unit unit cage.
+                        ~&  on-save:ag
+                        :_  this  (make-200 rid (frontpage bol !<(state on-save:ag))) 
+                    == ::End ?+ and End arm
+                    
+                    
+                    
+                    
+                            %+  turn  ourrow
+          |=  q=tokentype  
+          ;div.whitesquare: {<q>}
+
+          
+                grid-template-columns: repeat(3, 500px);
+      grid-template-rows: repeat(3, 250px);
+
+
+    ;*  ?~  gboard  !!
+        %+  turn  gboard  
+          |=  row=boardrow
+            ;div.board
+              ;*  ?~  row  !!
+                %+  turn  row
+                  |=  q=tokentype  
+                    =/  symbol  
+                      ?-  q
+                        %o  "⭘"
+                        %e  "_"
+                        %x  "⨯"
+                      ==
+                    ;div.whitesquare: {symbol}
+            ==  ::div board row
+    ==  :: p
+
+
+
+++  make-keys 
+  |=  [rmax=@ud cmax=@ud]
+    ^-  (list (list coord))
+    =/  row  0
+    = 
+
+
+    ;p
+      ;*  =/  nums=(list coord)  (get-row 1 3)
+      %+  turn  nums
+          |=  n=coord
+          ;div.whitesquare:  {n}
+
+
+++  get-row
+  |=  [row=@ud cmax=@ud]
+    ^-  (list coord)
+      =/  col  0
+      =/  result  `(list coord)`~
+      |- 
+      ^-  (list coord)
+       ?:  (lth col cmax)
+         %=  $
+            result  (snoc result [row col])
+            col  +(col)
+          ==
+          result
+

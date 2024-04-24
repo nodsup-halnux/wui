@@ -4,7 +4,7 @@
 
 |%
 +$  statecell      
-  $:  [%0 gameboard=board]
+  $:  [%0 board=boardmap bsize=dims]
   ==
 ++  agent  
     ::  input a gall agent
@@ -70,10 +70,10 @@
                            %'GET'
                         :: board ((q:(need (need (on-peek:ag /x/dbug/state))))) -.+.game
                         :: reminder: peek produces a unit unit cage.
-                        =/  mystate  on-save:ag  ~&  mystate
+                        ::=/  mystate  on-save:ag  ~&  mystate
                         =/  extstate  !<(statecell on-save:ag)  
-                        ?~  gameboard.extstate  !!
-                        :_  this  (make-200 rid (frontpage bol gameboard.extstate))  ::!<(state on-save:ag)
+                        ?~  board.extstate  !!
+                        :_  this  (make-200 rid (frontpage bol board.extstate bsize.extstate))  ::  !<(state on-save:ag)
                     == ::End ?+ and End arm
             ++  make-200
               |=  [rid=@ta dat=octs]

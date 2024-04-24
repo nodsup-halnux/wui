@@ -3,7 +3,7 @@
 /-  *ttt
 :: our front-end takes in the bowl from our agent and also our agent's state
 ::
-|=  [bol=bowl:gall gboard=board] ::   =page  playmap=playerinfo]
+|=  [bol=bowl:gall gboard=boardmap gdims=dims] ::   =page  playmap=playerinfo]
 :: 5. we return an $octs, which is the encoded body of the HTTP response and its byte-length
 ::
 |^  ^-  octs
@@ -19,6 +19,7 @@
 :: 1. we return a $manx, which is urbit's datatype to represent an XML structure
 ::
 ^-  manx
+=/  clist=(list (list coord))  (make-keys 3 3)
 
 ;html
   ;head
@@ -26,30 +27,59 @@
     ;meta(charset "utf-8");
     ;style
       ;+  ;/  style
-    ==
-  ==
+    ==  ::style
+  ==  ::head
   ;body
-    ;h1: Our Sample Tic-Tac-Toe Board:
-    ;h2: This page uses the ~nodsup-halnux default color scheme.
-    ;p
-      ;*  ?~  gboard  !!
-        %+  turn  gboard  
-          |=  row=boardrow
-            ;div.board
-              ;*  ?~  row  !!
-                %+  turn  row
-                  |=  q=tokentype  
-                    =/  symbol  
-                      ?-  q
+    ;h1: Sample Tic-Tac-Toe Board:
+    ;h2: 🖙 Use console pokes to set moves.  Refresh the page to see the results.  See the structure file for more details. 🖘
+    ;div.contain
+      ;*  ?~  clist  !!
+        %+  turn  clist
+          |=  rclist=(list coord)
+          ;div.board
+            ;*
+            ?~  rclist  !!
+              %+  turn  rclist
+              |=  rc=coord
+                =/  value  (need (~(get by gboard) rc))
+                =/  symbol  ?-  value
                         %o  "⭘"
                         %e  "_"
                         %x  "⨯"
                       ==
-                    ;div.whitesquare: {symbol}
-            ==  ::div board row
-    ==  :: p
+                ;div.whitesquare: {symbol}
+          == ::div outer
+    ==  ::p
   == ::body
 == ::html
+:: A general reminder:  Use a mictar rune for each new %+ turn and sub-elements generated.
+:: Using one mictar with multiple levels of loop and/or sub-elements leads to ruin.
+++  make-keys 
+  |=  [rmax=@ud cmax=@ud]
+    ^-  (list (list coord))
+    =/  row  0
+    =/   llcord  `(list (list coord))`~
+    |-
+      ^-  (list (list coord))
+      ?:  (lth row rmax)
+        %=  $
+          llcord  (snoc llcord (get-row row cmax))
+          row  +(row)
+        ==
+        llcord
+++  get-row
+  |=  [row=@ud cmax=@ud]
+    ^-  (list coord)
+      =/  col  0
+      =/  result  `(list coord)`~
+      |- 
+      ^-  (list coord)
+       ?:  (lth col cmax)
+         %=  $
+            result  (snoc result [row col])
+            col  +(col)
+          ==
+          result
 ++  style
   ^~
   %-  trip
@@ -60,11 +90,18 @@
     h2 {font-size: 24pt; text-align: center;}
     div {font-size: 16pt;}
 
+    .contain {
+      position:relative;
+      left:20%;
+    }
+
+
     .board {
       margin-top: 5px;
       display: grid;
       grid-template-columns: repeat(3, 500px);
       column-gap: 5px;
+
     }
 
     .square {
@@ -95,16 +132,15 @@
     .whitesquare {
       width: 500px;
       height: 250px;
-      background-color: white;
+      background-color: orange;
+      color: blue;
       font-size: 48px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      color: black;
       cursor: pointer;
     }
 
     '''
 --
- 

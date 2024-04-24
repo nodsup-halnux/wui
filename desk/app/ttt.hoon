@@ -9,15 +9,13 @@
 ::has access to them, and can call them. Its just arm calls in the end,
 ::nested in a given subject tree...
 ::  This is our state core - twui needs to be able to see it!
-
-
 |%
     +$  versioned-state
     $%  state-0
     ==
     +$  state-0
         :: A very basic state to test Sail with.
-    $:  [%0 gameboard=board]
+    $:  [%0 board=boardmap bsize=dims]
     ==
     +$  card  card:agent:gall
 --
@@ -53,23 +51,48 @@
         ++  handle-action
             |=  act=action
                 ^-  (quip card _this)
+                ~&  "our action"  ~&  act
                 ?-    -.act
                     ::Here, we set a basic state using a poke via the terminal. This will test our Sail render gates
+                    %newgame
+                        ~&  "TTT has received a newgame poke."
+                        =/  ntn  
+                                :*
+                                    [[r=0 c=0] [m=%e]] 
+                                    [[r=0 c=1] [m=%e]]
+                                    [[r=0 c=2] [m=%e]]
+                                    [[r=1 c=0] [m=%e]] 
+                                    [[r=1 c=1] [m=%e]]
+                                    [[r=1 c=2] [m=%e]]
+                                    [[r=2 c=0] [m=%e]] 
+                                    [[r=2 c=1] [m=%e]]
+                                    [[r=2 c=2] [m=%e]]
+                                    ~
+                                ==
+                        :_  %=  this  bsize  [r=3 c=3]  board  (my ntn)  ==  ~
+                    %printstate
+                        ~&  'Board='  ~&  board
+                        ~&  'Dims='  ~&  bsize
+                        `this
                     %teststate
-                    ~&  "TTT has received a teststate poke. Set the board"  
-                    =/  row1  ^-  boardrow  ~[[%o] [%e] [%e]]
-                    =/  row2  ^-  boardrow  ~[[%o] [%x] [%x]]
-                    =/  row3  ^-  boardrow  ~[[%e] [%e] [%e]]
-                    =/  theboard  ^-  board  ~[row1 row2 row3]
-                    :_  %=  this  gameboard  theboard  ==  ~
-                    ::The state can also be reset with a poke, should be choose to. Tests the Sail Null Case.
-                    %clearstate
-                    ~&  "TTT has received a clearstate poke. Empty the board."
-                    =/  row1  ^-  boardrow  ~[[%e] [%e] [%e]]
-                    =/  row2  ^-  boardrow  ~[[%e] [%e] [%e]]
-                    =/  row3  ^-  boardrow  ~[[%e] [%e] [%e]]
-                    =/  theboard  ^-  board  ~[row1 row2 row3]
-                    :_  %=  this  gameboard  theboard  ==  ~
+                        ~&  "TTT has received a teststate poke."  
+                        =/  ntn  
+                                :*
+                                    [[r=0 c=0] [m=%o]] 
+                                    [[r=0 c=1] [m=%x]]
+                                    [[r=0 c=2] [m=%e]]
+                                    [[r=1 c=0] [m=%o]] 
+                                    [[r=1 c=1] [m=%x]]
+                                    [[r=1 c=2] [m=%x]]
+                                    [[r=2 c=0] [m=%o]] 
+                                    [[r=2 c=1] [m=%e]]
+                                    [[r=2 c=2] [m=%e]]
+                                    ~
+                                ==
+                        :_  %=  this  bsize  [r=3 c=3]  board  (my ntn)  ==  ~
+                    %move  
+                    ~&  "TTT has received a setpos poke."  
+                    :_  %=  this  bsize  [r=3 c=3]  board  (~(put by board) [[r.act c.act] [ttype.act]])  ==  ~
                 == ::End ?-
     --  ::End |^
 ++  on-peek  on-peek:default
