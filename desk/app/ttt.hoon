@@ -13,19 +13,17 @@
     +$  versioned-state
     $%  state-0
     ==
-    +$  state-0
-        :: A very basic state to test Sail with.
-    $:  [%0 board=boardmap bsize=dims]
-    ==
+    +$  state-0  appstate
+        :: A very basic state to test Sail with.  $:  [%0 board=boardmap bsize=dims] ==
     +$  card  card:agent:gall
 --
 
 %-  agent:twui
-:: Note this is the **input** to the %- call above.
+
 =|  state-0  
 =*  state  -
-^-  agent:gall
 ::  Our sample app starts here (10 arm door)
+^-  agent:gall
 |_  =bowl:gall
 +*  this     .
     default  ~(. (default-agent this %|) bowl)
@@ -58,41 +56,47 @@
                         ~&  "TTT has received a newgame poke."
                         =/  ntn  
                                 :*
-                                    [[r=0 c=0] [m=%e]] 
-                                    [[r=0 c=1] [m=%e]]
-                                    [[r=0 c=2] [m=%e]]
-                                    [[r=1 c=0] [m=%e]] 
-                                    [[r=1 c=1] [m=%e]]
-                                    [[r=1 c=2] [m=%e]]
-                                    [[r=2 c=0] [m=%e]] 
-                                    [[r=2 c=1] [m=%e]]
-                                    [[r=2 c=2] [m=%e]]
+                                    [[r=0 c=0] m=%e] 
+                                    [[r=0 c=1] m=%e]
+                                    [[r=0 c=2] m=%e]
+                                    [[r=1 c=0] m=%e] 
+                                    [[r=1 c=1] m=%e]
+                                    [[r=1 c=2] m=%e]
+                                    [[r=2 c=0] m=%e] 
+                                    [[r=2 c=1] m=%e]
+                                    [[r=2 c=2] m=%e]
                                     ~
                                 ==
-                        :_  %=  this  bsize  [r=3 c=3]  board  (my ntn)  ==  ~
+                        :_  %=  this  bsize  [r=3 c=3]  board  (my ntn)  moves  0  currplayer  %p1x  status  %cont    ==  ~
                     %printstate
                         ~&  'Board='  ~&  board
                         ~&  'Dims='  ~&  bsize
+                        ~&  'currplayer='  ~&  currplayer
+                        ~&  'moves'  ~&  moves
+                        ~&  'status'  ~&  status
                         `this
                     %teststate
                         ~&  "TTT has received a teststate poke."  
                         =/  ntn  
                                 :*
-                                    [[r=0 c=0] [m=%o]] 
-                                    [[r=0 c=1] [m=%x]]
-                                    [[r=0 c=2] [m=%e]]
-                                    [[r=1 c=0] [m=%o]] 
-                                    [[r=1 c=1] [m=%x]]
-                                    [[r=1 c=2] [m=%x]]
-                                    [[r=2 c=0] [m=%o]] 
-                                    [[r=2 c=1] [m=%e]]
-                                    [[r=2 c=2] [m=%e]]
+                                    [[r=0 c=0] m=%o] 
+                                    [[r=0 c=1] m=%x]
+                                    [[r=0 c=2] m=%e]
+                                    [[r=1 c=0] m=%o] 
+                                    [[r=1 c=1] m=%x]
+                                    [[r=1 c=2] m=%x]
+                                    [[r=2 c=0] m=%o] 
+                                    [[r=2 c=1] m=%e]
+                                    [[r=2 c=2] m=%e]
                                     ~
                                 ==
-                        :_  %=  this  bsize  [r=3 c=3]  board  (my ntn)  ==  ~
+                        :_  %=  this  bsize  [r=3 c=3]  board  (my ntn)  moves  6  currplayer  %p1x  status  %cont  ==  ~
                     %move  
                     ~&  "TTT has received a setpos poke."  
-                    :_  %=  this  bsize  [r=3 c=3]  board  (~(put by board) [[r.act c.act] [ttype.act]])  ==  ~
+                    :_  %=  this  board  (~(put by board) [[r.act c.act] [ttype.act]])  moves  +(moves)  ==  ~
+                    %testfe
+                    ~&  "TTT has received a testfe poke."  
+                    :_  %=  this  currplayer  current.act  status  stat.act  ==  ~
                 == ::End ?-
     --  ::End |^
 ++  on-peek  on-peek:default

@@ -3,7 +3,7 @@
 /-  *ttt
 :: our front-end takes in the bowl from our agent and also our agent's state
 ::
-|=  [bol=bowl:gall gboard=boardmap gdims=dims] ::   =page  playmap=playerinfo]
+|=  [bol=bowl:gall gstate=appstate] ::   =page  playmap=playerinfo]
 :: 5. we return an $octs, which is the encoded body of the HTTP response and its byte-length
 ::
 |^  ^-  octs
@@ -19,7 +19,9 @@
 :: 1. we return a $manx, which is urbit's datatype to represent an XML structure
 ::
 ^-  manx
-=/  clist=(list (list coord))  (make-keys 3 3)
+~&  "our gboard is:"  ~&  gstate
+=/  clist=(list (list coord))  (make-keys rows.bsize.gstate cols.bsize.gstate)
+=/  play-classes  (assign-classes status.gstate currplayer.gstate)
 
 ;html
   ;head
@@ -41,7 +43,7 @@
             ?~  rclist  !!
               %+  turn  rclist
               |=  rc=coord
-                =/  value  (need (~(get by gboard) rc))
+                =/  value  (need (~(get by board.gstate) rc))
                 =/  symbol  ?-  value
                         %o  "⭘"
                         %e  "_"
@@ -50,10 +52,35 @@
                 ;div.whitesquare: {symbol}
           == ::div outer
     ==  ::p
+    ;br;
+    ;div.ffcontain  
+        ;div(id "p1", class p1.play-classes):  Player 1 - ⨯
+        ;div(id "p2", class p2.play-classes):  Player 2 - ⭘        
+    ==
+    ;br;
+    ;form(method "post")
+      ;div.refresh-container
+        ;button(class "refresh-button", name "reset", value "5"): ⟳
+      ==
+    ==
   == ::body
 == ::html
 :: A general reminder:  Use a mictar rune for each new %+ turn and sub-elements generated.
 :: Using one mictar with multiple levels of loop and/or sub-elements leads to ruin.
+:: When adding id and css attributes, its tag#css.class in that order!
+++  assign-classes
+  |=  [status=statussymbol player=playersymbol]
+    ^-  [p1=tape p2=tape]
+    ::  First check if the game is currently won, lost of drawn.
+    ?-  status
+        %p1win  [p1="player master" p2="player slave"]
+        %p2win  [p1="player slave" p2="player master"]
+        %draw  [p1="player limbo" p2="player limbo"]  
+        %cont ::  If the game is ongoing, we assign classes based on the current player.
+          ?:  =(player %p1x)
+            [p1="player active" p2="player waiting"]
+            [p1="player waiting" p2="player active"]
+    ==
 ++  make-keys 
   |=  [rmax=@ud cmax=@ud]
     ^-  (list (list coord))
@@ -95,6 +122,44 @@
       left:20%;
     }
 
+    .ffcontain {
+      width: 80%;
+      margin: 0 auto; 
+      display: flex;
+    }
+
+    .player {
+      flex: 1; 
+      text-align: center;
+      padding: 10px;
+      border: 1px solid #000; 
+    }
+
+    .active {
+      background-color: orange;
+      color: black;
+    }
+
+    .waiting {
+      background-color: black;
+      color: orange;
+    }
+
+    .master  {
+      background-color: green;
+      color: white;
+    
+    }
+
+    .slave {
+      background-color: red;
+      color: white;
+    }
+
+    .limbo {
+      background-color: gray;
+      color: white;
+    }
 
     .board {
       margin-top: 5px;
@@ -142,5 +207,19 @@
       cursor: pointer;
     }
 
+    .refresh-container {
+      width: 80%;
+      margin: 0 auto; /* Center the outer container horizontally */
+    }
+
+    .refresh-button {
+      width: 10%;
+      margin: 0 auto; /* Center the inner container horizontally */
+      text-align: center;
+      padding: 10px;
+      background-color: orange;
+      color: black;
+      cursor: pointer; /* Change cursor to pointer */
+    }
     '''
 --

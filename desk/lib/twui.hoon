@@ -3,9 +3,6 @@
 /=  frontpage  /app/frontend/frontpage
 
 |%
-+$  statecell      
-  $:  [%0 board=boardmap bsize=dims]
-  ==
 ++  agent  
     ::  input a gall agent
     |=  game=agent:gall
@@ -52,6 +49,7 @@
             ++  handle-http 
               |=  [rid=@ta req=inbound-request:eyre]
                 ^-  (quip card:agent:gall agent:gall)
+                ~&  "twui handle-http called"  ~&  "and body.req="  ~&  body.request.req
                 ?.  authenticated.req
                     :_  this
                     (give-http rid [307 ['Location' '/~/login?redirect='] ~] ~)
@@ -66,14 +64,15 @@
                                 ['Allow' 'GET, POST']
                             ==
                         (some (as-octs:mimes:html '<h1>405 Method Not Allowed</h1>'))
-                    
+
                            %'GET'
                         :: board ((q:(need (need (on-peek:ag /x/dbug/state))))) -.+.game
                         :: reminder: peek produces a unit unit cage.
                         ::=/  mystate  on-save:ag  ~&  mystate
-                        =/  extstate  !<(statecell on-save:ag)  
-                        ?~  board.extstate  !!
-                        :_  this  (make-200 rid (frontpage bol board.extstate bsize.extstate))  ::  !<(state on-save:ag)
+                        =/  gamestate  !<(appstate on-save:ag)  
+                        ?~  board.gamestate  !!
+                        ~&  "our state before frontpage call::"  ~&  gamestate
+                        :_  this  (make-200 rid (frontpage bol gamestate))  ::  !<(state on-save:ag)
                     == ::End ?+ and End arm
             ++  make-200
               |=  [rid=@ta dat=octs]
