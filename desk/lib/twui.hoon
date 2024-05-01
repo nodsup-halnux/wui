@@ -35,9 +35,9 @@
           |^ 
             ::Our $-arm
             ^-  (quip card:agent:gall agent:gall)
-            ~&  "twui on-poke called"
-            ?+  mark              
-                :: [!!!] Null Case, just pass through!
+            ~&  "twui on-poke called, our mark="  ~&  mark  ~&  "and our vase ="  ~&  vase
+            ?+  mark
+              :: If not an HTTP request, send straight to %ttt
                 =^  cards  game  (on-poke:ag mark vase)  [cards this]
                 :: Else, its an httprequest, deal with it.
                 %handle-http-request
@@ -49,7 +49,8 @@
             ++  handle-http 
               |=  [rid=@ta req=inbound-request:eyre]
                 ^-  (quip card:agent:gall agent:gall)
-                ~&  "twui handle-http called"  ~&  "and body.req="  ~&  body.request.req
+                ~&  "twui handle-http called"
+                ::p and q:(need body.request.req)
                 ?.  authenticated.req
                     :_  this
                     (give-http rid [307 ['Location' '/~/login?redirect='] ~] ~)
@@ -65,13 +66,29 @@
                             ==
                         (some (as-octs:mimes:html '<h1>405 Method Not Allowed</h1>'))
 
+                          %'POST'
+                          =/  postdata  q:(need body.request.req)  ~&  "postdata="  ~&  postdata
+                          =/  extdata  `@t`postdata  ~&  "extdata="  ~&  extdata
+                          ?.  =(extdata 'reset=5')
+                            :: F: Do nothing and report to console immediately.
+                            ~&  "POST detected with an unrecognized option. return `this and do nothing"
+                            :_  this  ~
+                            ::T
+                          :: Call tisket (?), call the on-poke arm to reset the state.
+                          =/  statecell  (on-poke:ag %ttt-action !>([%newgame ~]))
+                          :: Pull out the modified app core, and now use it. Tistar is expired.
+                          =/  newgame  +.statecell
+                          ::  Now call on-save, and extract the state.
+                          =/  gamestate  !<(appstate on-save:newgame)  
+                          ?~  board.gamestate  !!
+                            ~&  "POST: our state before frontpage call::"  ~&  gamestate
+                            :: take "this" and call our front page and update accordingly
+                            :_  this  (make-200 rid (frontpage bol gamestate))
+
                            %'GET'
-                        :: board ((q:(need (need (on-peek:ag /x/dbug/state))))) -.+.game
-                        :: reminder: peek produces a unit unit cage.
-                        ::=/  mystate  on-save:ag  ~&  mystate
                         =/  gamestate  !<(appstate on-save:ag)  
                         ?~  board.gamestate  !!
-                        ~&  "our state before frontpage call::"  ~&  gamestate
+                        ~&  "GET: our state before frontpage call::"  ~&  gamestate
                         :_  this  (make-200 rid (frontpage bol gamestate))  ::  !<(state on-save:ag)
                     == ::End ?+ and End arm
             ++  make-200

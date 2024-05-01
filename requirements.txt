@@ -36,3 +36,71 @@ Why does this work?  When we compose cores, the last core to be compiled has the
 The cores deep inside the tree cannot access the ones at the top.  So we need TWUI to be able to read the app state, and route to the app itself (be aware of its door and 10 arms).  Normally, this would mean TWUI is placed at the end, if we choose to compose.
 
 Another Method is to make a gate with an ++agent arm, and feed in the core and 
+
+
+
+
+%TTT Arranging the server arms:
+
+Player Actions:  Each of these has a gameboard interaction, via Sail.
+(1) start a new game
+    - http-request or poke
+(2) make a move
+    - http-request or poke
+(3) reset the game
+    - ...same
+
+Pipeline of actions, and calls:
+- Frontend:
+    - A form submission is made (POST, hit a button, send a key/value pair).
+twui.hoon:
+    - This is sent by Eyre as a poke. Our mark is an %http-request
+    - Fork: HTTP Request or Normal mark (sent from Dill by poke)
+    - Go to HTTP Gate, start pulling apart the request body.
+    - Route on request body, call the app and get the state + cards
+    - FORK: On Get request, or Poke.
+
+
+
+- Invariant: All of our pokes that have a FE equivalent are POST requests. Only 
+GET requests are used to allow the user to load the page at the beginning.
+
+Only for POSTS: We have to run the app, pull the updated state, and then use it
+to reupdate the board.
+
+So we only reupdate the board automatically, in a response to POST requests? No.
+- consider we make a poke, and detect a W/L/D condition in our game. We are required
+to update the board accordingly.
+
+- So for ANY poke whatsoever, we need to update our board.
+
+
+The issue is that I wish to separate the http-request logic from the state/ttt call logic.
+
+Shape of the Code:
+
+- A poke is recieved.
+- we have a gate that processes HTTP requests.
+- we have a general gate, that calls the ttt app, and gets back the state and cards.
+- We have a large fork of options, that calls one or both of the gates.
+- we need to return the app (with updated state inside), and call frontpage at the very
+end.
+
+Now every action results in a FE update!
+
+
+
+
+
+
+
+
+
+
+
+Debug Actions:  
+- Print state to console
+- Set a test state
+- Empty the state/reset the game.
+- Set a specific move
+- Set a specific player+game state.
