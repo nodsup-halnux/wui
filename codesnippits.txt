@@ -68,3 +68,83 @@
 
 
 ;div.whitesquare: {symbol}
+
+
+        ?+  -.act  `this
+            ::Make a new game, or reset the game.
+            %newgame
+                ~&  "TTT has received a newgame poke."
+                :: Manually form our board cell.
+                =/  ntn  
+                    :*
+                        [[r=0 c=0] m=%e] 
+                        [[r=0 c=1] m=%e]
+                        [[r=0 c=2] m=%e]
+                        [[r=1 c=0] m=%e] 
+                        [[r=1 c=1] m=%e]
+                        [[r=1 c=2] m=%e]
+                        [[r=2 c=0] m=%e] 
+                        [[r=2 c=1] m=%e]
+                        [[r=2 c=2] m=%e]
+                    ~
+                ==
+                ::  Our [state card] cell
+                :_  
+                    %=  
+                        this  bsize  
+                        [r=3 c=3]  
+                        board  (my ntn)  
+                        moves  0  
+                        currplayer  %p1x  
+                    status  %cont    
+                ==  
+            ~  :: End of %newgame case.
+            %printstate
+                ~&  'Board='  ~&  board
+                ~&  'Dims='  ~&  bsize
+                ~&  'currplayer='  ~&  currplayer
+                ~&  'moves'  ~&  moves
+                ~&  'status'  ~&  status
+                `this
+            %teststate
+                =/  ntn  
+                        :*
+                            [[r=0 c=0] m=%o] 
+                            [[r=0 c=1] m=%x]
+                            [[r=0 c=2] m=%e]
+                            [[r=1 c=0] m=%o] 
+                            [[r=1 c=1] m=%x]
+                            [[r=1 c=2] m=%x]
+                            [[r=2 c=0] m=%o] 
+                            [[r=2 c=1] m=%e]
+                            [[r=2 c=2] m=%e]
+                            ~
+                        ==
+                :_  
+                    %=  
+                    this  
+                    bsize  [r=3 c=3]  
+                    board  (my ntn)  
+                    moves  6  
+                    currplayer  %p1x  
+                    status  %cont  
+                ==  
+            ~
+            ::  End of %teststate case.
+            %move  
+            :_  
+                %=  this  
+                    board  (~(put by board) [[r.act c.act] [ttype.act]])  
+                    moves  +(moves)  
+                ==  
+            ~
+            ::End of %move case
+            %testfe
+            :_  
+                %=  this  
+                    currplayer  current.act  
+                    status  stat.act  
+                ==  
+            ~
+            ::  End of %testfe case.
+        ==  ::  End of ?+
