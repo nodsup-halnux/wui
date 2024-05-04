@@ -62,6 +62,7 @@ twui.hoon:
 
 
 
+
 - Invariant: All of our pokes that have a FE equivalent are POST requests. Only 
 GET requests are used to allow the user to load the page at the beginning.
 
@@ -80,6 +81,12 @@ The issue is that I wish to separate the http-request logic from the state/ttt c
 Shape of the Code:
 
 - A poke is recieved.
+
+Is it an http-request, or other?
+    - Get or Post:
+    - if it is a get, bypass directly to the front page call.
+    - If it is a post, then it is either a board move, or 
+
 - we have a gate that processes HTTP requests.
 - we have a general gate, that calls the ttt app, and gets back the state and cards.
 - We have a large fork of options, that calls one or both of the gates.
@@ -88,6 +95,21 @@ end.
 
 Now every action results in a FE update!
 
+
+?.  =(mark %http-request)
+    ::%.n: Just a %ttt poke
+    =^  cards  game  (on-poke:ag mark vase)  [cards this]
+
+    ::%.y: We do have an http server request
+        :: If one of the error cases, 
+
+
+
+
+
+    :: Our end case: We have presumably updated state an app, and now change our FE
+    :: Our FE display is just a card in the end...
+     :_  this  (make-200 rid (frontpage bol gamestate))
 
 
 

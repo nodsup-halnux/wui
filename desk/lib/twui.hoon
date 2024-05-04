@@ -104,7 +104,7 @@
             ++  give-http
               |=  [rid=@ta hed=response-header:http dat=(unit octs)]
               ^-  (list card:agent:gall)
-                  :~  [%give %fact ~[/http-response/[rid]] %http-response-header !>(hed)]
+                  :~  [%give %fact ~[ /http-response/[rid]] %http-response-header !>(hed)]
                       [%give %fact ~[/http-response/[rid]] %http-response-data !>(dat)]
                       [%give %kick ~[/http-response/[rid]] ~]
                   ==
