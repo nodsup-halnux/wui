@@ -1,27 +1,32 @@
-:: first we import our /sur/ttt.hoon type definitions and expose them directly
-::
+::  Import strucutre file.
 /-  *ttt
-:: our front-end takes in the bowl from our agent and also our agent's state
-::
-|=  [bol=bowl:gall gstate=appstate] ::   =page  playmap=playerinfo]
-:: 5. we return an $octs, which is the encoded body of the HTTP response and its byte-length
-::
-|^  ^-  octs
-:: 4. we convert the cord (atom string) to an octs
-::
-%-  as-octs:mimes:html
-:: 3. we convert the tape (character list string) to a cord (atom string) for the octs conversion
-::
-%-  crip
-:: 2. the XML data structure is serialized into a tape (character list string)
-::
-%-  en-xml:html
-:: 1. we return a $manx, which is urbit's datatype to represent an XML structure
-::
-^-  manx
-~&  "our gboard is:"  ~&  gstate
-=/  clist=(list (list coord))  (make-keys rows.bsize.gstate cols.bsize.gstate)
-=/  play-classes  (assign-classes status.gstate currplayer.gstate)
+:: Our Sail page is a gate that renders HTML that we
+::  serve to our localhost website.
+::   Bowl and gamestate supplied to gate. Bowl isn't
+::  currently used, but kept for generality.
+|=  [bol=bowl:gall gstate=appstate]
+  |^  ^-  octs
+::  The nested gate calls below produce a format chain
+::  that take us from xml manx structures, to outputted
+::  html.
+        %-  as-octs:mimes:html
+      %-  crip
+    %-  en-xml:html
+  ^-  manx
+
+::  In the Sail guide, data formatting is just called
+::  inside the sail elements, using ;+ and ;*.  Here,
+::  data computation is separated for simplicity.
+=/  clist=(list (list coord))  
+    (make-keys rows.bsize.gstate cols.bsize.gstate)
+=/  play-classes  
+    (assign-classes status.gstate currplayer.gstate)
+
+::  Notes about Sail:  Use a mictar rune for each 
+::  new %+ turn and sub-elements generated. Using one 
+::  mictar with multiple levels of loop and/or 
+::  sub-elements leads to ruin.  When adding id and 
+::  css attributes, its tag#css.class in that order!
 
 ;html
   ;head
@@ -32,42 +37,42 @@
     ==  ::style
   ==  ::head
   ;body
-    ;h1: Sample Tic-Tac-Toe Board:
-    ;h2: 🖙 Use console pokes to set moves.  Refresh the page to see the results.  See the structure file for more details. 🖘
-    ;div.contain
-      ;*  ?~  clist  !!
-        %+  turn  clist
-          |=  rclist=(list coord)
-          ;div.board
-            ;*
-            ?~  rclist  !!
-              %+  turn  rclist
-              |=  rc=coord
-                =/  value  (need (~(get by board.gstate) rc))
-                =/  symbol  ?-  value
-                        %o  "⭘"
-                        %e  "_"
-                        %x  "⨯"
-                      ==
-                ;div.whitesquare: {symbol}
-          == ::div outer
-    ==  ::p
+    ;h1: %ttt - Tic-Tac-Toe Board:
+    ;h2 
+      🖙 Use console pokes to set moves.  
+      Refresh the page to see the results.  
+      See the structure file for more details. 🖘
+    ==  ::h2
+      ;div.contain
+        ;*  ?~  clist  !!
+          %+  turn  clist
+            |=  rclist=(list coord)
+            ;div.board
+              ;*
+              ?~  rclist  !!
+                %+  turn  rclist
+                |=  rc=coord
+                  =/  val  (need (~(get by board.gstate) rc))
+                  =/  symbol  ?-  val
+                          %o  "⭘"
+                          %e  "_"
+                          %x  "⨯"
+                        ==
+                    ;div(class "square", id "{<r.rc>}-{<c.rc>}"): {symbol} 
+            == ::div board
+    ==  ::div contain
+    ;br;
     ;br;
     ;div.ffcontain  
         ;div(id "p1", class p1.play-classes):  Player 1 - ⨯
-        ;div(id "p2", class p2.play-classes):  Player 2 - ⭘        
-    ==
-    ;br;
-    ;form(method "post")
-      ;div.refresh-container
-        ;button(class "refresh-button", name "reset", value "5"): ⟳
-      ==
-    ==
+        ;div(id "p2", class p2.play-classes):  Player 2 - ⭘
+    ==  ::div ffcontain
   == ::body
 == ::html
-:: A general reminder:  Use a mictar rune for each new %+ turn and sub-elements generated.
-:: Using one mictar with multiple levels of loop and/or sub-elements leads to ruin.
-:: When adding id and css attributes, its tag#css.class in that order!
+::
+::  Gate that takes in our status and player states,
+::  and produces the correct classes for our player
+::  status bar.
 ++  assign-classes
   |=  [status=statussymbol player=playersymbol]
     ^-  [p1=tape p2=tape]
@@ -76,11 +81,12 @@
         %p1win  [p1="player master" p2="player slave"]
         %p2win  [p1="player slave" p2="player master"]
         %draw  [p1="player limbo" p2="player limbo"]  
-        %cont ::  If the game is ongoing, we assign classes based on the current player.
+        %cont 
           ?:  =(player %p1x)
             [p1="player active" p2="player waiting"]
             [p1="player waiting" p2="player active"]
     ==
+::  This gate generates keys for our board map.
 ++  make-keys 
   |=  [rmax=@ud cmax=@ud]
     ^-  (list (list coord))
@@ -94,6 +100,8 @@
           row  +(row)
         ==
         llcord
+::  Inner support loop for make-keys. Gets a row of
+::  keys.
 ++  get-row
   |=  [row=@ud cmax=@ud]
     ^-  (list coord)
@@ -107,10 +115,10 @@
             col  +(col)
           ==
           result
+::  The css for the page is just one big tape.
 ++  style
   ^~
   %-  trip
-    ::Board CSS generated by chatGPT 3.5.
     '''
     body {background-color:black; color: orange;}
     h1 {font-size: 36pt; text-align: center;}
@@ -131,6 +139,7 @@
     .player {
       flex: 1; 
       text-align: center;
+      font-size: 24pt;
       padding: 10px;
       border: 1px solid #000; 
     }
@@ -148,7 +157,6 @@
     .master  {
       background-color: green;
       color: white;
-    
     }
 
     .slave {
@@ -170,56 +178,15 @@
     }
 
     .square {
-      width: 250px;
-      height: 250px;
-      background-color: orange;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      font-weight: bold;
-      color: black;
-      cursor: pointer;
-    }
-
-    .blacksquare {
-      width: 500px;
-      height: 250px;
-      background-color: black;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      font-weight: bold;
-      color: white;
-      cursor: pointer;
-    }
-
-    .whitesquare {
       width: 500px;
       height: 250px;
       background-color: orange;
       color: blue;
-      font-size: 48px;
+      font-size: 72px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      cursor: pointer;
-    }
-
-    .refresh-container {
-      width: 80%;
-      margin: 0 auto; /* Center the outer container horizontally */
-    }
-
-    .refresh-button {
-      width: 10%;
-      margin: 0 auto; /* Center the inner container horizontally */
-      text-align: center;
-      padding: 10px;
-      background-color: orange;
-      color: black;
-      cursor: pointer; /* Change cursor to pointer */
     }
     '''
 --
