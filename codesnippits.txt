@@ -148,3 +148,89 @@
             ~
             ::  End of %testfe case.
         ==  ::  End of ?+
+
+
+
+    body {
+      background-color:black;
+      color: orange;
+    }
+    h1 {
+      font-size: 36pt;
+      text-align: center;
+    }
+    h2 {
+      font-size: 24pt;
+      text-align: center;
+    }
+    div  {  
+      font-size: 16pt;
+    }
+
+    .contain {
+      position:relative;
+      left:20%;
+    }
+
+    .statuscontainer {
+      width: 80%;
+      margin: 0 auto; 
+      display: flex;
+    }
+
+    .player {
+      flex: 1; 
+      text-align: center;
+      font-size: 24pt;
+      padding: 10px;
+      border: 1px solid #000; 
+    }
+    .active {
+      background-color: orange;
+      color: black;
+    }
+    .waiting {
+      background-color: black;
+      color: orange;
+    }
+    .master  {
+      background-color: green;
+      color: white;
+    }
+    .slave {
+      background-color: red;
+      color: white;
+    }
+    .limbo {
+      background-color: gray;
+      color: white;
+    }
+    .board {
+      margin-top: 5px;
+      display: grid;
+      grid-template-columns: repeat(3, 500px);
+      column-gap: 5px;
+    }
+    .square {
+      width: 500px;
+      height: 250px;
+      background-color: orange;
+      color: blue;
+      font-size: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+
+
+      |=  [=wire =sign-arvo]
+        ^-  (quip card _this)
+        ?.  ?=([%bind ~] wire)
+          (on-arvo:def [wire sign-arvo])
+        ?.  ?=([%eyre %bound *] sign-arvo)
+          (on-arvo:def [wire sign-arvo])
+        ~?  !accepted.sign-arvo
+          %eyre-rejected-squad-binding
+        `this

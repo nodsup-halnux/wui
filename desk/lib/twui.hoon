@@ -16,6 +16,15 @@
 ::  like and behaves like an agent, so it does not 
 ::  care.
 |%
+::  Using (quip card this) for our kethep
+::  in the arms causes weird nesting problems,
+::  likely because we are monkeying around with wrappers
+::  and agent+state as [code-as-data]. Likely there
+::  is a namespace issue.
+::  These shorthands are used instead.
++$  cag  card:agent:gall
+::  Please don't give me "that" look rn.
++$  that  agent:gall
 ++  agent  
   |=  game=agent:gall
     ^-  agent:gall
@@ -43,7 +52,7 @@
 ::
     ++  on-load
       |=  old-state=vase
-        ^-  (quip card:agent:gall agent:gall)
+        ^-  (quip cag that)
         =^    cards
             game
           (on-load:ag old-state)
@@ -51,14 +60,13 @@
 ::  Poke Arm - most fleshed out because we interact this way
     ++  on-poke
       |=  [=mark =vase]
-        ^-  (quip card:agent:gall agent:gall)
+        ^-  (quip cag that)
         ::  A bar-ket is stuffed in the gate, so as to
         ::  compartmentalize our little HTTP
         ::  server code into the on-poke arm.
         |^ 
           ::Our $-arm
-          ^-  (quip card:agent:gall agent:gall)
-          ~&  "twui on-poke called."
+          ^-  (quip cag that)
           ?+  mark
             :: If not an HTTP request, send straight to %ttt
               =^  cards  game  (on-poke:ag mark vase)  [cards this]
@@ -70,7 +78,7 @@
             :: Eyre takes our browser poke, and passes 
             :: a complex request structure.
             |=  [rid=@ta req=inbound-request:eyre]
-              ^-  (quip card:agent:gall agent:gall)
+              ^-  (quip cag that)
               :: First check to see if user auth'ed.
               ?.  authenticated.req
                   :_  this
@@ -101,7 +109,7 @@
             :: Construct a 200 series HTTP request.
           ++  make-200
             |=  [rid=@ta dat=octs]
-            ^-  (list card:agent:gall)
+            ^-  (list cag)
                 %^    give-http
                     rid
                 :-  200
@@ -113,7 +121,7 @@
           :: Just a stack of (complex) cards returned.
           ++  give-http
             |=  [rid=@ta hed=response-header:http dat=(unit octs)]
-              ^-  (list card:agent:gall)
+              ^-  (list cag)
               :~  [%give %fact ~[/http-response/[rid]] %http-response-header !>(hed)]
                   [%give %fact ~[/http-response/[rid]] %http-response-data !>(dat)]
                   [%give %kick ~[/http-response/[rid]] ~]
@@ -124,7 +132,7 @@
 ::
     ++  on-watch
       |=  =path
-        ^-  (quip card:agent:gall agent:gall)
+        ^-  (quip cag that)
         =^    cards  
             game  
           (on-watch:ag path)  
@@ -132,7 +140,7 @@
 ::
     ++  on-leave
       |=  =path
-        ^-  (quip card:agent:gall agent:gall)
+        ^-  (quip cag that)
         =^    cards
             game
           (on-leave:ag path)
@@ -140,7 +148,7 @@
 ::
     ++  on-agent
       |=  [=wire =sign:agent:gall]
-        ^-  (quip card:agent:gall agent:gall)
+        ^-  (quip cag that)
         =^    cards
             game
           (on-agent:ag wire sign)
@@ -148,15 +156,17 @@
 ::
     ++  on-arvo
       |=  [=wire =sign-arvo]
-        ^-  (quip card:agent:gall agent:gall)
-        =^    cards
-            game
-          (on-arvo:ag wire sign-arvo)
-        [cards this]
+         ^-  (quip cag that)
+        ~&  "wire="  ~&  wire  ~&  "sign-arvo"  ~&  sign-arvo
+        ?:  ?&(=([%bind ~] wire) =(%eyre -.sign-arvo))
+           ::  %.y
+          ~&  'Arvo bind confirmed. Navigate to localhost:<yourport#>/ttt/display to view board.'  `this
+          ::  %.n
+          ~&  '(!) Error: arvo rejected frontend binding.'  `this
 ::
     ++  on-fail
       |=  [=term =tang]
-        ^-  (quip card:agent:gall agent:gall)
+        ^-  (quip cag that)
         =^    cards
             game
           (on-fail:ag term tang)

@@ -1,7 +1,7 @@
 :: Our structure file.
 /-  *ttt
 ::  default-agent used to default un-implemented arms.
-/+  default-agent, twui
+/+  default-agent, twui, dbug
 :: Note:  Our state structure has been defined in /sur
 :: This is done to aide the twui wrapper - this is not
 :: standard practice in app development.
@@ -18,6 +18,9 @@
 ::  To the Gall vane, this is just another app. As long
 ::  As a [this card] is returned after every arm call, 
 ::  Gall is none-the-wiser.
+::
+::  YES, we can (use +dbug)!
+%-  agent:dbug
 %-  agent:twui
 ::  Pin the state
 =|  state-0  
@@ -110,10 +113,16 @@
             ~
             ::  End of %teststate case.
             %move  
+            ::  Determine the current player, and switch to the other.
+            =/  next
+                ?:  =(currplayer %p1x)
+                    %p2o
+                    %p1x
             :_  
                 %=  this  
                     board  (~(put by board) [[r.act c.act] [ttype.act]])  
-                    moves  +(moves)  
+                    currplayer  next
+                    moves  +(moves)
                 ==  
             ~
             ::End of %move case
