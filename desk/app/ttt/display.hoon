@@ -63,10 +63,10 @@
     ==  ::div contain
     ;br;
     ;br;
-    ;div.ffcontain  
+    ;div.statuscontainer  
         ;div(id "p1", class p1.play-classes):  Player 1 - ⨯
         ;div(id "p2", class p2.play-classes):  Player 2 - ⭘
-    ==  ::div ffcontain
+    ==  ::div statuscontainer
   == ::body
 == ::html
 ::
@@ -119,18 +119,26 @@
 ++  style
   ^~
   %-  trip
-    '''
-    body {background-color:black; color: orange;}
-    h1 {font-size: 36pt; text-align: center;}
-    h2 {font-size: 24pt; text-align: center;}
-    div {font-size: 16pt;}
-
+'''
+    body {
+      background-color:black;
+      color:orange;
+      text-align: center;
+    }
+    h1 {
+      font-size: 36pt;
+    }
+    h2 {
+      font-size: 24pt;
+    }
+    div  {  
+      font-size: 16pt;
+    }
     .contain {
       position:relative;
       left:20%;
     }
-
-    .ffcontain {
+    .statuscontainer {
       width: 80%;
       margin: 0 auto; 
       display: flex;
@@ -138,45 +146,36 @@
 
     .player {
       flex: 1; 
-      text-align: center;
       font-size: 24pt;
       padding: 10px;
       border: 1px solid #000; 
     }
-
     .active {
       background-color: orange;
       color: black;
     }
-
     .waiting {
       background-color: black;
       color: orange;
     }
-
     .master  {
       background-color: green;
       color: white;
     }
-
     .slave {
       background-color: red;
       color: white;
     }
-
     .limbo {
       background-color: gray;
       color: white;
     }
-
     .board {
       margin-top: 5px;
       display: grid;
       grid-template-columns: repeat(3, 500px);
       column-gap: 5px;
-
     }
-
     .square {
       width: 500px;
       height: 250px;
@@ -188,5 +187,5 @@
       justify-content: center;
       font-weight: bold;
     }
-    '''
+'''
 --
