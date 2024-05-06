@@ -2,7 +2,7 @@
 /-  *ttt
 :: Our Sail page is a gate that renders HTML that we
 ::  serve to our localhost website.
-::   Bowl and gamestate supplied to gate. Bowl isn't
+::  Bowl and gamestate supplied to gate. Bowl isn't
 ::  currently used, but kept for generality.
 |=  [bol=bowl:gall gstate=appstate]
   |^  ^-  octs
@@ -20,14 +20,16 @@
 =/  clist=(list (list coord))  
     (make-keys rows.bsize.gstate cols.bsize.gstate)
 =/  play-classes  
-    (assign-classes status.gstate currplayer.gstate)
+    ?:  =(board.gstate ~)
+        [p1="player limbo" p2="player limbo"]
+        (assign-classes status.gstate currplayer.gstate)
 
 ::  Notes about Sail:  Use a mictar rune for each 
 ::  new %+ turn and sub-elements generated. Using one 
 ::  mictar with multiple levels of loop and/or 
 ::  sub-elements leads to ruin.  When adding id and 
 ::  css attributes, its tag#css.class in that order!
-
+::
 ;html
   ;head
     ;title: tictactoe
@@ -43,30 +45,32 @@
       Refresh the page to see the results.  
       See the structure file for more details. 🖘
     ==  ::h2
-      ;div.contain
-        ;*  ?~  clist  !!
-          %+  turn  clist
-            |=  rclist=(list coord)
-            ;div.board
-              ;*
-              ?~  rclist  !!
-                %+  turn  rclist
-                |=  rc=coord
-                  =/  val  (need (~(get by board.gstate) rc))
-                  =/  symbol  ?-  val
-                          %o  "⭘"
-                          %e  "_"
-                          %x  "⨯"
-                        ==
-                    ;div(class "square", id "{<r.rc>}-{<c.rc>}"): {symbol} 
-            == ::div board
-    ==  ::div contain
-    ;br;
-    ;br;
-    ;div.statuscontainer  
-        ;div(id "p1", class p1.play-classes):  Player 1 - ⨯
-        ;div(id "p2", class p2.play-classes):  Player 2 - ⭘
-    ==  ::div statuscontainer
+      ;+  ?:  =(board.gstate ~)
+        ;div.sigdiv:  ~ No game state initialized ~ 
+        ;div.contain
+          ;*  ?~  clist  !!
+            %+  turn  clist
+              |=  rclist=(list coord)
+              ;div.board
+                ;*
+                ?~  rclist  !!
+                  %+  turn  rclist
+                  |=  rc=coord
+                    =/  val  (need (~(get by board.gstate) rc))
+                    =/  symbol  ?-  val
+                            %o  "⭘"
+                            %e  "_"
+                            %x  "⨯"
+                          ==
+                      ;div(class "square", id "{<r.rc>}-{<c.rc>}"): {symbol} 
+              == ::div board
+      ==  ::div contain
+      ;br;
+      ;br;
+      ;div.statuscontainer  
+          ;div(id "p1", class p1.play-classes):  Player 1 - ⨯
+          ;div(id "p2", class p2.play-classes):  Player 2 - ⭘
+      ==  ::div statuscontainer
   == ::body
 == ::html
 ::
@@ -76,7 +80,6 @@
 ++  assign-classes
   |=  [status=statussymbol player=playersymbol]
     ^-  [p1=tape p2=tape]
-    ::  First check if the game is currently won, lost of drawn.
     ?-  status
         %p1win  [p1="player master" p2="player slave"]
         %p2win  [p1="player slave" p2="player master"]
@@ -134,6 +137,17 @@
     div  {  
       font-size: 16pt;
     }
+    .sigdiv {
+      width: 50%;
+      height: 20%;
+      background-color: orange;
+      color: black;
+      text-align: center;
+      line-height: 20vh; 
+      font-size: 48pt;
+      margin: 0 auto; 
+      display: block;
+    }
     .contain {
       position:relative;
       left:20%;
@@ -143,7 +157,6 @@
       margin: 0 auto; 
       display: flex;
     }
-
     .player {
       flex: 1; 
       font-size: 24pt;

@@ -73,8 +73,9 @@ structures for tic-tac-toe and minesweeper, are listed below:
 Generally speaking: a gameboard is a `n x m` grid that is reprsented by a map of coordinates to squares.  The sur files build up structures to support the board map, and have other structures to keep track of players, and other
 game information.
 
-Users can alter the structure files to **add additional** fields, as long as the basic fields that are provided are not altered in any way. In theory, as the long
-as the state structure keeps its bindings and shapes, the front-end should not care if additional state fields have been added, for it simply was not designed to access these new fields.
+Users can alter the structure files to **add additional** fields, as long as the basic fields that are provided are not altered in any way. In theory, as the long as the state structure keeps its bindings and shapes, WUI and the front-end display page should not care.  
+
+If a user does choose to add new fields to the app state structure, they must remember to `|nuke %theirapp` and `|revive %theirapp` to avoid compilation errors.
 
 #### Tic-Tac-Toe:
 

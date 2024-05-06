@@ -101,7 +101,8 @@
 ::
                       %'GET'
                         =/  gamestate  !<(appstate on-save:ag)  
-                        ?~  board.gamestate  !!
+                        :: The board can be ~, but the gamestate itself cannot.
+                        :: If this happens we have a serious error.
                           :_  this  
                           (make-200 rid (display bol gamestate))
                   == ::End ?+
@@ -160,9 +161,11 @@
         ~&  "wire="  ~&  wire  ~&  "sign-arvo"  ~&  sign-arvo
         ?:  ?&(=([%bind ~] wire) =(%eyre -.sign-arvo))
            ::  %.y
-          ~&  'Arvo bind confirmed. Navigate to localhost:<yourport#>/ttt/display to view board.'  `this
+          ~&  'Arvo bind confirmed. Hosted at localhost:<yourport#>/ttt/display.'
+          `this
           ::  %.n
-          ~&  '(!) Error: arvo rejected frontend binding.'  `this
+          ~&  '(!) Error: arvo rejected frontend binding.'
+          `this
 ::
     ++  on-fail
       |=  [=term =tang]
