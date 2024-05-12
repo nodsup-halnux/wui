@@ -15,14 +15,13 @@
   ^-  manx
 
 :: Generate a list of cells to iterate on.
-=/  clist=(list (list coord))  (make-keys x.dims.mstate y.dims.mstate)
-=/  asymbol  [dot="·" flag="⚑" mine="🟒"]
-=/  eval  (~(get by tiles.mstate) [0 4])  ~&  "empty val"  ~&  eval
-=/  fval  (~(get by tiles.mstate) [0 1])  ~&  "full val"  ~&  fval
-
-:: Next, we calculate board dimensions, so we can interpolate dynamic values
-:: into our ++style CSS tape!  All of this is kept in a structure, and calcs
-:: performed in a gate.
+=/  clist=(list (list coord))  
+  (make-keys x.dims.mstate y.dims.mstate)
+::  Easier to type names than obscure utf-8 chars.
+=/  utfsymbol  [dot="·" flag="⚑" mine="🟒"]
+::  The playing field %win %lose %live determines
+::  the board colors.
+=/  boardcolors  (board-colors playing.mstate)
 
 ::  In the Sail guide, data formatting is just called
 ::  inside the sail elements, using ;+ and ;*.  Here,
@@ -34,6 +33,7 @@
 ::  sub-elements leads to ruin.  When adding id and 
 ::  css attributes, its tag#css.class in that order!
 ::
+
 ;html
   ;head
     ;title: Minesweeper
@@ -47,21 +47,28 @@
     ;h2
       🖙 Use console pokes to set moves.  
       Refresh the page to see the results.  
-      See the structure file for more details. 🖘
+      Counting for board positions starts from zero (0).
+      See the structure file for more details on moves 🖘
     ==  ::h2
+    ::  ~? seemed to be causing a nasty mull-grow error
+    ::  switching to ?: seemed to help.
+    ::  if you bake your map, you can get lost ~
     ;+  ?:  =(tiles.mstate ~)
-        ;div.start:  Game Started - make a <%move> to display the board.
-        ;div.contain
+        ::  div.start only shows up when game is init'ed.
+        ;div.start:  Game Started - make a move to display the board.
+        :: Main container. All children inheret colors.
+        ;div.contain(style boardcolors)
+          :: First turn pulls every row.
           ;*  ?~  clist  !!
             %+  turn  clist
               |=  rclist=(list coord)
-              ;div.board
+              ::  row container - flex-y.
+              ;div.boardrow
                 ;*
                 ?~  rclist  !!
+                 :: run +turn on every coord, pull from map
                   %+  turn  rclist
                   |=  rc=coord
-                    ::=/  val  (need (~(get by tiles.mstate) rc))
-                    ::~&  [val rc]
                     ?:  (~(has by tiles.mstate) rc)
                       ::T: We have a tile entry, so its a %flag or %num
                       =/  val  (~(get by tiles.mstate) rc)
@@ -76,16 +83,27 @@
                             %6  "6"
                             %7  "7"
                             %8  "8"
-                          %flag  "⚑"
-                          %mine  "🟒"
+                          %flag  flag.utfsymbol
+                          %mine  mine.utfsymbol
                         ==
                       ;div(class "square", id "{<x.rc>}-{<y.rc>}"): {symbol}
                     ::F Case - not tested or a mine.
-                    ;div(class "square", id "{<x.rc>}-{<y.rc>}"): "·"
+                    ;div(class "square", id "{<x.rc>}-{<y.rc>}"): {dot.utfsymbol}
               == ::div board
         ==  ::div contain
   ==  ::body
 == ::html
+::  Take our playing status, and output a css
+::  style tape.
+++  board-colors
+  |=  stat=status
+    ^-  tape
+    ?-  stat
+      %live  "background-color:orange;color:blue;"
+      %win  "background-color:green;color:white;"
+      %lose  "background-color:red;color:white;"
+    ==
+
 ::  This gate generates keys for our board map.
 ++  make-keys 
   |=  [rmax=@ud cmax=@ud]
@@ -105,8 +123,7 @@
     gridprop=tape
     cell-h-w=tape
 ==
-::  Inner support loop for make-keys. Gets a row of
-::  keys.
+::  Inner support loop for make-keys. Gets a row of  keys.
 ++  get-row
   |=  [row=@ud cmax=@ud]
     ^-  (list coord)
@@ -120,15 +137,7 @@
             col  +(col)
           ==
           result
-++  css-board-calcs
-  |=  dims=coord
-    ^-  css-struct
-    ::  our dimensions are labelled x and y
-      =/  percent  (div 1.000 x.dims)  ::truncation of decimal, akin to taking min.
-      =/  gridtemp  "grid-template-columns:repeat({<x.dims>},{<percent>}px);"
-      =/  cellhw  "height:{<percent>}px;width:{<percent>}px;"
-    [gridtemp cellhw]
-
+::  Our style sheet is one big tape.
 ++  style
   ^~
   %-  trip
@@ -151,7 +160,7 @@
       width: 50%;
       height: 20%;
       background-color: orange;
-      color: black;
+      color: blue;
       text-align: center;
       line-height: 20vh; 
       font-size: 24pt;
@@ -159,18 +168,16 @@
       display: block;
     }
     .contain {
-       width: 80%;
+       width: 70%;
        margin: 0 auto; 
     }
-    .board {
+    .boardrow {
       display: flex;
     }
     .square {
         flex: 1;
-        padding: 10px;
+        padding: 2px;
         border: 1px solid black;
-        background-color: orange;
-        color: blue;
         font-size: 48px;
         align-items: center;
         justify-content: center;

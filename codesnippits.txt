@@ -324,3 +324,4 @@
       justify-content: center;
       font-weight: bold;
 
+[%pass /pokes %agent [our.bowl %mines] %poke %mines-action !>(`action`[%check-win ~])]

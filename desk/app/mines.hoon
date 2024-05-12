@@ -41,12 +41,25 @@
   ?>  ?=(%mines-action mark)
   =/  act  !<(action vase)
   ?-    -.act
+      ::  This exists just to test the Sail Display
+      %set-playing 
+       ~&  act
+       :-  ~
+        :: State portion of two cell.
+        %=  this
+          playing  stat.act
+        ==
+    ::  Game is unfinished - this is a bit harder
+    :: to implement than just checking if num tiles = 
+    :: L*W of board.  Will leave it blank for later.
+      %check-win  `this
+    ::
       %start
     |^
     =.  mines  (lay-mines coord.act n.act)
     =.  neighbors  *^neighbors
     =.  tiles  *^tiles
-    =.  playing  %.y
+    =.  playing  %live
     :-  ~
     %=  this
       neighbors  get-neighbors
@@ -104,12 +117,27 @@
     ::
       %flag
     |^
-    ?>  playing
+    ::?>  =(playing %live)
     ?>  &((lth x.coord.act x.dims) (lth y.coord.act y.dims))
-    :-  ~
-    %=  this
-      tiles  (toggle-flag coord.act)
-    ==
+    :-  
+      ::  Card list portion of 2-cell
+      ::  This poke currently does nothing, but is
+      ::  left in place for now.
+      ^-  (list card)
+      :~  :*
+            %pass 
+            /pokes 
+            %agent 
+            [our.bowl %mines] 
+            %poke 
+            %mines-action 
+            !>(`action`[%check-win ~])
+          ==
+      ==
+      :: State portion of two cell.
+      %=  this
+        tiles  (toggle-flag coord.act)
+      ==
     ::  Toggle flag
     ++  toggle-flag
       |=  =coord
@@ -127,29 +155,40 @@
     ::
       %test
     |^
-    ?>  playing
+    ::?>  =(playing %live)
     ?>  &((lth x.coord.act x.dims) (lth y.coord.act y.dims))
     ~&  >  "testing {<coord.act>}"
-    :-  ~
-    %=  this
-      tiles  (test coord.act)
-    ==
+    :-
+      ^-  (list card)
+      :~  :*
+            %pass 
+            /pokes 
+            %agent 
+            [our.bowl %mines] 
+            %poke 
+            %mines-action 
+            !>(`action`[%check-win ~])
+          ==
+      ==
+      :: State portion of two cell.
+      %=  this
+        tiles  (test coord.act)
+      ==
     ++  test
       |=  =coord
       ^-  ^tiles
       =/  tile  (~(gut by tiles) coord %hide)
       ?+    tile  ~|(%bad-test tiles)
           ?(%0 %1 %2 %3 %4 %5 %6 %7 %8)
-        ~&  >>  'Already seen'
+        ~&  >>  'Already seen.'
         tiles
           %flag
-        ~&  >>  'Untoggle the flag first'
+        ~&  >>  'Untoggle the flag first.'
         tiles
           %hide
         ?:  (~(has in mines) coord)
-          ~&  >>>  'You stepped on a mine'
-          :: TODO trigger game over
-          =.  playing  %.n
+          ~&  >>>  'You stepped on a mine! Game Over.'
+          =.  playing  %lose
           (~(put by tiles) coord %mine)
         ?:  (~(has by neighbors) coord)
           (~(put by tiles) coord `^tile`(~(got by neighbors) coord))

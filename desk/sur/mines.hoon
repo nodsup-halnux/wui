@@ -10,13 +10,15 @@
 ::
 +$  num   ?(%0 %1 %2 %3 %4 %5 %6 %7 %8)
 +$  tile  ?(num %mine %flag)
++$  status  ?(%live %win %lose)
 ::
 +$  game-state
   $:  =mines
       =neighbors
       =tiles
       dims=coord
-      playing=_|
+      playing=status
+      ::playing=_| ??
   ==
 ::
 +$  coord  [x=@ y=@]
@@ -27,5 +29,9 @@
       [%view ~]            :: display tiles (seen board)
       [%debug ~]           :: display whole board
       [%start =coord n=@]  :: start game
+      ::  These two states have been added, to assist
+      ::  In debugging. Also, the game app isn't finished.
+      [%check-win ~]   ::  flag and test call this.
+      [%set-playing stat=status]
   ==
 --
