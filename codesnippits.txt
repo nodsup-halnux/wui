@@ -234,3 +234,93 @@
         ~?  !accepted.sign-arvo
           %eyre-rejected-squad-binding
         `this
+
+
+        ;div.sigdiv:  "{<tiles.mstate>}"
+
+
+    ^-  tape
+    ~&  csscell
+      %+  weld 
+        "
+        body {
+          background-color:black;
+          color:orange;
+          text-align: center;
+        }
+        h1 {
+          font-size: 36pt;
+        }
+        h2 {
+          font-size: 24pt;
+        }
+        div  {  
+          font-size: 16pt;
+        }
+        .start {
+          width: 50%;
+          height: 20%;
+          background-color: orange;
+          color: black;
+          text-align: center;
+          line-height: 20vh; 
+          font-size: 14pt;
+          margin: 0 auto; 
+          display: block;
+        }
+        .contain {
+          position:relative;
+          left:20%;
+        }
+        .board {
+          margin-top: 5px;
+          display: grid;
+          grid-template-columns: repeat(
+        "
+        %+  weld 
+        %-  trip
+        '''
+          {<col-num.csscell>}, {<cell-width.csscell>});
+          column-gap: 5px;
+        }
+        .square {
+        '''
+        %+  weld 
+        %-  trip
+        '''
+          width: {<cell-width.csscell>};
+          height: {<cell-width.csscell>};
+        '''
+        %-  trip
+        '''
+          background-color: orange;
+          color: blue;
+          font-size: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+        }
+        '''
+
+
+      position:relative;
+      left:20%;
+
+
+      display: grid;
+      grid-template-columns: repeat(3, 200px);
+      margin-top: 5px;
+      column-gap: 5px;
+
+
+      width: 50px;
+      height: 200px;
+      background-color: orange;
+      color: blue;
+      font-size: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+

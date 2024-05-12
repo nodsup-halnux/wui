@@ -1,7 +1,7 @@
 :: Our structure file.
 /-  *ttt
 ::  default-agent used to default un-implemented arms.
-/+  default-agent, twui, dbug
+/+  default-agent, ttt-wui, dbug
 :: Note:  Our state structure has been defined in /sur
 :: This is done to aide the twui wrapper - this is not
 :: standard practice in app development.
