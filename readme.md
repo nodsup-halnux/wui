@@ -42,8 +42,11 @@ To use this library, setup your Tic-Tac-Toe or Minesweeper desk as follows:
 In your app file, import the *-wui.hoon lib file. Some sample app code is below:
 
 ```hoon
+::  Structure file import
 /-  *ttt
+::  Library Imports
 /+  default-agent, twui, dbug
+::  Our versioned state core.
 |%
     +$  versioned-state
     $%  state-0
@@ -51,31 +54,34 @@ In your app file, import the *-wui.hoon lib file. Some sample app code is below:
     +$  state-0  appstate
     +$  card  card:agent:gall
 --
+::  gate calls that wrap around the agent core. 
 	%-  agent:dbug
 %-  agent:twui
+::  This pins a state-0 to the subject
 =|  state-0  
+::  This allows us to reference state-0 as "state" in our code
 =*  state  -
 ^-  agent:gall
+:: Our agent door itself...
 |_  =bowl:gall
 ...
 ```
 
+Notice that the `+dbug` wrapper has also been included.  
 
-Notice that the `+dbug` wrapper has also been included.  **Yes**, you can still use +dbug, and wrap it around WUI!
+**Yes**, you can still use [+dbug](https://docs.urbit.org/courses/app-school/3-imports-and-aliases#dbug), and wrap it around WUI!
 
 
 ###  Gameboard Format:
 
-In order to display the gameboards properly, WUI assumes a particular state
-structure, which is reads upon every interaction with the game app.  The two 
-structures for tic-tac-toe and minesweeper, are listed below:
+In order to display the gameboards properly, WUI assumes a particular state structure, which is reads upon every interaction with the game app.  The two structures for tic-tac-toe and minesweeper, are listed below.
 
 Generally speaking: a gameboard is a `n x m` grid that is reprsented by a map of coordinates to squares.  The sur files build up structures to support the board map, and have other structures to keep track of players, and other
 game information.
 
-Users can alter the structure files to **add additional** fields, as long as the basic fields that are provided are not altered in any way. In theory, as the long as the state structure keeps its bindings and shapes, WUI and the front-end display page should not care.  
+**Note:**  Users can alter the structure files to **add additional** fields, as long as the basic fields that are provided are not altered in any way. In theory, as the long as the state structure keeps its bindings and shapes, WUI and the front-end display page should not care.  
 
-If a user does choose to add new fields to the app state structure, they must remember to `|nuke %theirapp` and `|revive %theirapp` to avoid compilation errors.
+If a user does choose to add new fields to the app state structure, they must remember to `|nuke %theirapp` and `|revive %theirapp` in console, to avoid compilation errors.
 
 #### Tic-Tac-Toe:
 
@@ -111,8 +117,34 @@ If a user does choose to add new fields to the app state structure, they must re
 ####  Minesweeper:
 
 ``` hoon
-...
-+$  boardmap  (map coord squarestate)
+|%
++$  mines  (set coord)
++$  neighbors  (map coord num)
++$  tiles  (map coord tile)
++$  board  (list (list @tas))
+::
++$  num   ?(%0 %1 %2 %3 %4 %5 %6 %7 %8)
++$  tile  ?(num %mine %flag)
++$  status  ?(%live %win %lose)
+::
++$  game-state
+  $:  =mines
+      =neighbors
+      =tiles
+      dims=coord
+      playing=status
+  ==
+::
++$  coord  [x=@ y=@]
+::
++$  action
+  $%  [%flag =coord]       :: toggle flag
+      [%test =coord]       :: reveal mine
+      [%view ~]            :: display tiles (seen board)
+      [%debug ~]           :: display whole board
+      [%start =coord n=@]  :: start game
+  ==
+--
 ```
 
 
@@ -127,4 +159,5 @@ This wrapper library is a derivative work. Speficially, its framework and design
 
 2)  The [+dbug library](https://docs.urbit.org/courses/app-school/3-imports-and-aliases#dbug):  The overall wrapper framework structure was mimic'ed in this app.  This involves passing in a state+app into a library gate call, and having wrapper arms route Gall requests either to themselves, or to the wrapped app. As this was the solution to the needs of this wrapper library, the same structure was reused.
 
-A special thanks also goes out to `~tamlut-modnys`, and `~lagrev-nocfep` for assistance in the design, and help with state debugging.
+A special thanks also goes out to `~tamlut-modnys`, `~lagrev-nocfep`, `~midden-fabler` for assistance in the design, and help with the various questions I had during the project.
+
