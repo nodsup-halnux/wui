@@ -325,3 +325,8 @@
       font-weight: bold;
 
 [%pass /pokes %agent [our.bowl %mines] %poke %mines-action !>(`action`[%check-win ~])]
+
+    ;+  ?:  =(tiles.mstate ~)
+          ::  div.start only shows up when game is init'ed, or invalid params
+          :: are used.
+        :: Main container. All children inheret colors.
