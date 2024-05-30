@@ -8,8 +8,9 @@
       [%testfe current=playersymbol stat=statussymbol]
   ==
 :: [!!!]  Is an update pattern even needed?
-+$  update
-  $%  [%init values=(list @)]
++$  update  ::these are respones sent by BE to FE client.
+  $%  [%init ack=@ud]
+      [%upstate gstat=statussymbol token=tokensymbol r=@ud c=@ud]
   ==
 ::  An (X), an (O), and (E) for an empty square.
 +$  tokensymbol  $?  %x  %o  %e  ==

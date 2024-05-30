@@ -40,6 +40,9 @@
     ;style
       ;+  ;/  style
     ==  ::style
+    ;script
+      ;+  ;/  script
+    ==
   ==  ::head
   ;body(style (board-colors playing.mstate))
     ;h1: %mines - Minesweeper Board:
@@ -205,5 +208,13 @@
       color: #E5480D;
     }
 
+'''
+++  script
+  ^~
+  %-  trip
+'''
+        window.onload = function() {
+            alert("Page has loaded!");
+        };
 '''
 --

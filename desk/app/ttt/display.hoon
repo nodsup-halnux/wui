@@ -17,6 +17,7 @@
 ::  In the Sail guide, data formatting is just called
 ::  inside the sail elements, using ;+ and ;*.  Here,
 ::  data computation is separated for simplicity.
+~&  "Compiler has hit the start of the Sail Page..."
 =/  clist=(list (list coord))  
     (make-keys rows.bsize.gstate cols.bsize.gstate)
 =/  play-classes  
@@ -37,14 +38,17 @@
     ;style
       ;+  ;/  style
     ==  ::style
+    ;script(type "module")
+      ;+  ;/  script
+    ==
   ==  ::head
   ;body
     ;h1: %ttt - Tic-Tac-Toe Board:
-    ;h2 
-      🖙 Use console pokes to set moves.  
-      Refresh the page to see the results.  
-      See the structure file for more details. 🖘
-    ==  ::h2
+    ;h2: Use console pokes to set moves.  
+    ;h2: Refresh the page to see the results.  
+    ;h2: See the structure file for more details.
+    ;br;
+    ;br;
       ;+  ?:  =(board.gstate ~)
         ;div.sigdiv:  ~ No game state initialized ~ 
         ;div.contain
@@ -65,6 +69,7 @@
                       ;div(class "square", id "{<r.rc>}-{<c.rc>}"): {symbol} 
               == ::div board
       ==  ::div contain
+      ;br;
       ;br;
       ;br;
       ;div.statuscontainer  
@@ -124,15 +129,17 @@
   %-  trip
 '''
     body {
-      background-color:black;
-      color:orange;
+      background-color:#333333;
+      color:#c6a615;
       text-align: center;
     }
     h1 {
-      font-size: 36pt;
+      font-size: 56pt;
     }
     h2 {
-      font-size: 24pt;
+      font-size: 30pt;
+      margin-top: 8px;
+      margin-bottom:8px;
     }
     div  {  
       font-size: 16pt;
@@ -150,10 +157,11 @@
     }
     .contain {
       position:relative;
-      left:20%;
+      left:30%;
+      margin: 0 auto; 
     }
     .statuscontainer {
-      width: 80%;
+      width: 70%;
       margin: 0 auto; 
       display: flex;
     }
@@ -164,12 +172,13 @@
       border: 1px solid #000; 
     }
     .active {
-      background-color: orange;
-      color: black;
+      background-color: #149D82;
+      color: #0547D3;
     }
     .waiting {
-      background-color: black;
+      background-color: #333333;
       color: orange;
+      border-color:#333333;
     }
     .master  {
       background-color: green;
@@ -190,15 +199,53 @@
       column-gap: 5px;
     }
     .square {
+      border-radius: 5px;
       width: 500px;
       height: 250px;
-      background-color: orange;
-      color: blue;
-      font-size: 72px;
+      background-color: #149D82;
+      color:#0547D3;
+      font-size: 72pt;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
     }
+'''
+++  script
+  ^~
+  %-  trip
+'''
+  import urbitHttpApi from "https://cdn.skypack.dev/@urbit/http-api";
+ 
+  const api = new urbitHttpApi("", "", "ttt");
+  api.ship = "med";
+
+  var subID = api.subscribe({
+    app: "ttt",
+    path: "/ttt-sub",
+    event: check_callback,
+     err:  check_error
+  })
+
+  function check_error(er) {
+    console.log(er);
+    alert("we recieved an error from the back-end");
+  }
+
+  function check_callback(upd) {
+    console.log(upd);
+    if ('init' in upd) {
+      console.log("Our Eyre Channel Subscription is: " + api.uid + ", with path: /ttt-sub" );
+    }
+    else if ('upstate' in upd) {
+      let uup = upd.upstate;
+      let idstr = uup.r + "-" + uup.c;
+      var cell = document.getElementById(idstr);
+      cell.innerHTML = (uup.token == "o") ? "⭘" : ((uup.token == "x") ? "⨯" : "_");
+    }
+  }
+
+    console.log("Sail page loaded.");
+
 '''
 --

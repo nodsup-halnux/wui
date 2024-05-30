@@ -330,3 +330,142 @@
           ::  div.start only shows up when game is init'ed, or invalid params
           :: are used.
         :: Main container. All children inheret colors.
+
+
+'''
+    body {
+      background-color:#333333;
+      color:#c6a615;
+      text-align: center;
+    }
+    h1 {
+      font-size: 56pt;
+    }
+    h2 {
+      font-size: 30pt;
+      margin-top: 8px;
+      margin-bottom:8px;
+    }
+    div  {  
+      font-size: 16pt;
+    }
+    .sigdiv {
+      width: 50%;
+      height: 20%;
+      background-color: orange;
+      color: black;
+      text-align: center;
+      line-height: 20vh; 
+      font-size: 48pt;
+      margin: 0 auto; 
+      display: block;
+    }
+    .contain {
+      position:relative;
+      left:20%;
+      margin: 0 auto; 
+    }
+    .statuscontainer {
+      width: 70%;
+      margin: 0 auto; 
+      display: flex;
+    }
+    .player {
+      flex: 1; 
+      font-size: 24pt;
+      padding: 10px;
+      border: 1px solid #000; 
+    }
+    .active {
+      background-color: #149D82;
+      color: #0547D3;
+    }
+    .waiting {
+      background-color: #333333;
+      color: orange;
+      border-color:#333333;
+    }
+    .master  {
+      background-color: green;
+      color: white;
+    }
+    .slave {
+      background-color: red;
+      color: white;
+    }
+    .limbo {
+      background-color: gray;
+      color: white;
+    }
+    .board {
+      margin-top: 5px;
+      display: grid;
+      grid-template-columns: repeat(3, 500px);
+      column-gap: 5px;
+    }
+    .square {
+      border-radius: 5px;
+      width: 500px;
+      height: 250px;
+      background-color: #149D82;
+      color:#0547D3;
+      font-size: 72pt;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+'''
+
+
+
+
+++  on-watch
+  |=  =path
+  ^-  (quip card _this)  `this
+
+
+    ++  on-watch
+      |=  =path
+        ^-  (quip cag that)
+        ~&  "on-watch ttt-wui called, path="  ~&  path
+        =^    cards  
+            game  
+          (on-watch:ag path)  
+        ~&  "cards returned:"  ~&  cards  [cards this]
+
+
+
+ //import '/session.js';
+
+
+~[
+  [ %give p [ %fact paths=~[/http-response/~.eyre_0v6.ftio0.i0cpg.g5umu.451kk.3mgtl]
+        cage [ p=%http-response-header
+          q [ #t/[status-code=@ud headers=it([key=@t value=@t])]
+            q [ 200
+            [31.393.958.642.898.984.038.472.511.299 2.000.135.403.361.090.954.612]
+            [2.118.593.076.047.644.386.086.300.223.958.851 858.861.619]
+            0
+          ]
+        ]
+      ]
+    ]
+  ]
+
+
+  [ %give
+      p [ %fact paths=~[/http-response/~.eyre_0v6.ftio0.i0cpg.g5umu.451kk.3mgtl]
+        cage [ p=%http-response-data
+          q [ #t/u([p=@ud q=@])
+            q [ 0
+            3.013
+            25.949.198.528.276......
+          ]
+        ]
+      ]
+    ]
+  ]
+  
+  [%give p=[%kick paths=~[/http-response/~.eyre_0v6.ftio0.i0cpg.g5umu.451kk.3mgtl] ship=~]]
+]

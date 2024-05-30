@@ -19,9 +19,9 @@
 ::  As a [this card] is returned after every arm call, 
 ::  Gall is none-the-wiser.
 ::
-::  YES, we can (use +dbug)!
+::  Yes, we can (use +dbug)!
 %-  agent:dbug
-%-  agent:twui
+%-  agent:ttt-wui
 ::  Pin the state
 =|  state-0  
 ::  Tis-tar deferred expression. state ref's state-0
@@ -47,7 +47,7 @@
 ++  on-poke
     |=  [=mark =vase]
         ^-  (quip card _this)
-        ~&  '%ttt on-poke:'  ~&  mark
+        ~&  '%ttt on-poke arm hit:'  ~&  mark
         =/  act  !<(action vase)
         ::  Unrecognized actions do nothing, instead
         ::  of crashing out.
@@ -124,7 +124,9 @@
                     currplayer  next
                     moves  +(moves)
                 ==  
-            ~
+                :~
+                    [%give %fact ~[/ttt-sub] %ttt-update !>(`update`[%upstate gstat=status token=ttype.act r=r.act c=c.act])]
+                ==
             ::End of %move case
             %testfe
             :_  
@@ -139,8 +141,12 @@
 ::  implementation for this app.
 ++  on-peek  on-peek:default
 ++  on-watch
-  |=  =path
-  ^-  (quip card _this)  `this
+    |=  =path  
+        ^-  (quip card _this)
+        ?~  path  ~&  "Warning: on-watch path is ~ (!!)"  !!
+            ~&  "on-watch %ttt app FE subscribe... "  ~&  "path is:"  ~&  path
+            ::give a fact back
+            :_  this  [%give %fact ~[path] %ttt-update !>(`update`[%init ack=1])]~
 ++  on-arvo   on-arvo:default
 ++  on-leave  on-leave:default
 ++  on-agent  on-agent:default

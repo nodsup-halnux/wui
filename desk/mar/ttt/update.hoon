@@ -7,13 +7,19 @@
     =,  enjs:format
     ^-  ^json
     ?-    -.upd
-    ::  %pop   (frond 'pop' s+(scot %p target.upd))
-      %init  (frond 'init' a+(turn values.upd numb))
-    ::  %push  %+  frond  'push'
-      ::       %-  pairs
-        ::     :~  ['target' s+(scot %p target.upd)]
-          ::       ['value' (numb value.upd)]
-    ==      :: ==
+      %init
+           %+  frond  'init'
+             %-  pairs
+              :~  ['ack' (numb ack.upd)]  ==
+      %upstate
+           %+  frond  'upstate'
+            %-  pairs
+              :~  ['gstat' s+gstat.upd]
+                  ['token' s+token.upd]
+                  ['r' (numb r.upd)]
+                  ['c' (numb c.upd)]
+              ==
+    ==
   --
 ++  grab
   |%
