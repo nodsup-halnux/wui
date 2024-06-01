@@ -134,7 +134,9 @@
                     currplayer  current.act  
                     status  stat.act  
                 ==  
-            ~
+            :~
+                [%give %fact ~[/ttt-sub] %ttt-update !>(`update`[%upstate gstat=stat.act token=%x r=2 c=2])]
+            ==
             ::  End of %testfe case.
         ==  ::  End of ?-::
 ::  All arms below just defaulted - no special

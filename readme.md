@@ -90,7 +90,7 @@ If a user does choose to add new fields to the app state structure, they must re
 +$  action
   $%
 	  [%newgame ~]
-      [%move r=@ud c=@ud ttype=tokensymbol]
+    [%move r=@ud c=@ud ttype=tokensymbol]
   ==
 +$  update
   $%  [%init values=(list @)]
@@ -148,6 +148,7 @@ If a user does choose to add new fields to the app state structure, they must re
 ```
 
 
+
 ### References and Acknolwedgements:
 
 This wrapper library is a derivative work. Speficially, its framework and design is heavily influenced by the following code repositories:
@@ -158,6 +159,8 @@ This wrapper library is a derivative work. Speficially, its framework and design
 	- Nesting a mini http server in a |^ arm, in the on-poke arm of the app
 
 2)  The [+dbug library](https://docs.urbit.org/courses/app-school/3-imports-and-aliases#dbug):  The overall wrapper framework structure was mimic'ed in this app.  This involves passing in a state+app into a library gate call, and having wrapper arms route Gall requests either to themselves, or to the wrapped app. As this was the solution to the needs of this wrapper library, the same structure was reused.
+
+3)  Usage of the urbithttp-api library via CDN (instead of using npm build).  Example code for this was found in the [gin+tonic](https://github.com/arthyn/gin-tonic/blob/main/README.md) library that is currently being developed.  Skypack CDN information can be found [here](https://cdn.skypack.dev/@urbit/http-api). In short, we can load the urbithttp-api library in a script tag, make a subscribe and setup callbacks to handle responses from the back end.  This allows for board auto-updates whenever a player makes a %move.
 
 A special thanks also goes out to `~tamlut-modnys`, `~lagrev-nocfep`, `~midden-fabler` for assistance in the design, and help with the various questions I had during the project.
 

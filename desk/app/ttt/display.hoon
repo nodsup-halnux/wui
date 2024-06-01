@@ -17,7 +17,6 @@
 ::  In the Sail guide, data formatting is just called
 ::  inside the sail elements, using ;+ and ;*.  Here,
 ::  data computation is separated for simplicity.
-~&  "Compiler has hit the start of the Sail Page..."
 =/  clist=(list (list coord))  
     (make-keys rows.bsize.gstate cols.bsize.gstate)
 =/  play-classes  
@@ -45,17 +44,17 @@
   ;body
     ;h1: %ttt - Tic-Tac-Toe Board:
     ;h2: Use console pokes to set moves.  
-    ;h2: Refresh the page to see the results.  
+    ;h2: Page auto-refreshes on player %moves.  
     ;h2: See the structure file for more details.
     ;br;
     ;br;
       ;+  ?:  =(board.gstate ~)
-        ;div.sigdiv:  ~ No game state initialized ~ 
+        ;div.sigdiv:  ~ No game state initialized. Start a %newgame ~ 
         ;div.contain
           ;*  ?~  clist  !!
             %+  turn  clist
               |=  rclist=(list coord)
-              ;div.board
+              ;div.boardrow
                 ;*
                 ?~  rclist  !!
                   %+  turn  rclist
@@ -63,7 +62,7 @@
                     =/  val  (need (~(get by board.gstate) rc))
                     =/  symbol  ?-  val
                             %o  "⭘"
-                            %e  "_"
+                            %e  "·"
                             %x  "⨯"
                           ==
                       ;div(class "square", id "{<r.rc>}-{<c.rc>}"): {symbol} 
@@ -132,6 +131,7 @@
       background-color:#333333;
       color:#c6a615;
       text-align: center;
+      font-weight:bold;
     }
     h1 {
       font-size: 56pt;
@@ -155,11 +155,6 @@
       margin: 0 auto; 
       display: block;
     }
-    .contain {
-      position:relative;
-      left:30%;
-      margin: 0 auto; 
-    }
     .statuscontainer {
       width: 70%;
       margin: 0 auto; 
@@ -172,13 +167,11 @@
       border: 1px solid #000; 
     }
     .active {
-      background-color: #149D82;
-      color: #0547D3;
+      background-color: #066508;
     }
     .waiting {
       background-color: #333333;
-      color: orange;
-      border-color:#333333;
+      border-color:#111111;
     }
     .master  {
       background-color: green;
@@ -192,34 +185,50 @@
       background-color: gray;
       color: white;
     }
-    .board {
-      margin-top: 5px;
-      display: grid;
-      grid-template-columns: repeat(3, 500px);
-      column-gap: 5px;
-    }
-    .square {
-      border-radius: 5px;
-      width: 500px;
-      height: 250px;
-      background-color: #149D82;
-      color:#0547D3;
-      font-size: 72pt;
+
+  .contain {
+      margin-top: 5%;
+      width: auto;
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 auto; 
+      padding: 10px; 
+  }
+
+  .boardrow {
+      display: flex;
+      width: 25%; 
+  }
+
+  .square {
+      border-radius:5px;
+      flex: 1;
+      padding: 20px 5px 5px 5px;
+      background-color: #066508;
+      border: 1px solid #03440E;
+      font-size: 72pt;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-    }
+      display: flex;
+      aspect-ratio: 1 / 1;
+  }
+
 '''
 ++  script
   ^~
   %-  trip
 '''
+ //  We don't have a session.js as we don't use npm build with urbithttp-api
+ //  so api.ship must be interpolated, and pulled from our bowl.
   import urbitHttpApi from "https://cdn.skypack.dev/@urbit/http-api";
  
+ //  Simple init. No need for authentication - as FE inside ship.
   const api = new urbitHttpApi("", "", "ttt");
   api.ship = "med";
 
+  //  This is our subscribe request to Eyre.  Will hit the on-watch arm.
   var subID = api.subscribe({
     app: "ttt",
     path: "/ttt-sub",
@@ -227,11 +236,13 @@
      err:  check_error
   })
 
+  //Default error function, if something goes wrong.
   function check_error(er) {
     console.log(er);
     alert("we recieved an error from the back-end");
   }
 
+  //This handles %upstate responses from BE. Will update our board for us.
   function check_callback(upd) {
     console.log(upd);
     if ('init' in upd) {
@@ -239,13 +250,34 @@
     }
     else if ('upstate' in upd) {
       let uup = upd.upstate;
-      let idstr = uup.r + "-" + uup.c;
-      var cell = document.getElementById(idstr);
-      cell.innerHTML = (uup.token == "o") ? "⭘" : ((uup.token == "x") ? "⨯" : "_");
+      var cell = document.getElementById(uup.r + "-" + uup.c);
+      cell.innerHTML = (uup.token == "o") ? "⭘" : ((uup.token == "x") ? "⨯" : "·");
+      let p1p = document.getElementById("p1");
+      let p2p = document.getElementById("p2"); 
+      switch (uup.gstat) {
+        case 'cont':
+          if (uup.token == 'x') {
+            p1p.className = "player waiting"; p2p.className = "player active";
+          }
+          else if (uup.token == 'o') {
+            p1p.className = "player active"; p2p.className = "player waiting";
+          }
+          break;
+        case 'p1win':
+          p1p.className = "player master"; p2p.className = "player slave";
+          break;
+        case 'p2win':
+          p1p.className = "player slave"; p2p.className = "player master";
+          break;
+        case 'draw':
+          p1p.className = "player limbo"; p2p.className = "player limbo";
+          break;
+        default:
+          console.log("Error:  Invalid game state.");
+      }
     }
   }
 
     console.log("Sail page loaded.");
-
 '''
 --

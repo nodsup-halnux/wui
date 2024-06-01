@@ -466,6 +466,105 @@
       ]
     ]
   ]
-  
+
   [%give p=[%kick paths=~[/http-response/~.eyre_0v6.ftio0.i0cpg.g5umu.451kk.3mgtl] ship=~]]
 ]
+
+
+
+    body {
+      background-color:#333333;
+      color:#c6a615;
+      text-align: center;
+    }
+    h1 {
+      font-size: 56pt;
+    }
+    h2 {
+      font-size: 30pt;
+      margin-top: 8px;
+      margin-bottom:8px;
+    }
+    div  {  
+      font-size: 16pt;
+    }
+    .sigdiv {
+      width: 50%;
+      height: 20%;
+      background-color: orange;
+      color: black;
+      text-align: center;
+      line-height: 20vh; 
+      font-size: 48pt;
+      margin: 0 auto; 
+      display: block;
+    }
+    .contain {
+      position:relative;
+      left:30%;
+      margin: 0 auto; 
+    }
+    .statuscontainer {
+      width: 70%;
+      margin: 0 auto; 
+      display: flex;
+    }
+    .player {
+      flex: 1; 
+      font-size: 24pt;
+      padding: 10px;
+      border: 1px solid #000; 
+    }
+    .active {
+      background-color: #149D82;
+      color: #0547D3;
+    }
+    .waiting {
+      background-color: #333333;
+      color: orange;
+      border-color:#333333;
+    }
+    .master  {
+      background-color: green;
+      color: white;
+    }
+    .slave {
+      background-color: red;
+      color: white;
+    }
+    .limbo {
+      background-color: gray;
+      color: white;
+    }
+    .board {
+      margin-top: 5px;
+      display: grid;
+      grid-template-columns: repeat(3, 500px);
+      column-gap: 5px;
+    }
+    .square {
+      border-radius: 5px;
+      width: 500px;
+      height: 250px;
+      background-color: #149D82;
+      color:#0547D3;
+      font-size: 72pt;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+
+        margin: 3% 0% 3% 0%;
+    display: flex;
+    flex-direction: column; /* Arrange children (boardrow) in a column */
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    height: 33vh; /* Full height of the viewport */
+    box-sizing: border-box;
+    margin-left:25%;
+    border-style: double;
+    border-width: 10px;
+    border-color: #129A78;
