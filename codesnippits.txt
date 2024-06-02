@@ -568,3 +568,103 @@
     border-style: double;
     border-width: 10px;
     border-color: #129A78;
+
+
+
+'''
+ //  We don't have a session.js as we don't use npm build with urbithttp-api.
+ //  So there is now window.ship variable in session.
+ //  api.ship must be interpolated, and pulled from our bowl.
+  import urbitHttpApi from "https://cdn.skypack.dev/@urbit/http-api";
+ 
+ //  Simple init. No need for authentication - as FE inside ship.
+  const api = new urbitHttpApi("", "", "ttt");
+  api.ship = "med";
+
+  //  This is our subscribe request to Eyre.  Will hit the ++on-watch arm.
+  var subID = api.subscribe({
+    app: "ttt",
+    path: "/ttt-sub",
+    event: check_callback,
+     err:  check_error
+  })
+
+  //Default error function, if something goes wrong.
+  function check_error(er) {
+    console.log(er);
+    console.log("Error: recieved an error from the back-end");
+  }
+
+  //This handles %upstate responses from BE. Will update our board for us.
+  function check_callback(upd) {
+    console.log(upd);
+    if ('init' in upd) {
+      console.log("Our Eyre Channel Subscription is: " + api.uid + ", with path: /ttt-sub" );
+    }
+    else if ('upstate' in upd) {
+      let uup = upd.upstate;
+      var cell = document.getElementById(uup.r + "-" + uup.c);
+      cell.innerHTML = (uup.token == "o") ? "⭘" : ((uup.token == "x") ? "⨯" : "·");
+      let p1p = document.getElementById("p1");
+      let p2p = document.getElementById("p2"); 
+      switch (uup.gstat) {
+        case 'cont':
+          if (uup.token == 'x') {
+            p1p.className = "player waiting"; p2p.className = "player active";
+          }
+          else if (uup.token == 'o') {
+            p1p.className = "player active"; p2p.className = "player waiting";
+          }
+          break;
+        case 'p1win':
+          p1p.className = "player master"; p2p.className = "player slave";
+          break;
+        case 'p2win':
+          p1p.className = "player slave"; p2p.className = "player master";
+          break;
+        case 'draw':
+          p1p.className = "player limbo"; p2p.className = "player limbo";
+          break;
+        default:
+          console.log("Error:  Invalid game state.");
+      }
+    }
+  }
+
+    console.log("Sail page loaded.");
+'''
+
+
+            %teststate
+                =/  ntn  
+                        :*
+                            [[r=0 c=0] m=%o] 
+                            [[r=0 c=1] m=%x]
+                            [[r=0 c=2] m=%e]
+                            [[r=1 c=0] m=%o] 
+                            [[r=1 c=1] m=%x]
+                            [[r=1 c=2] m=%x]
+                            [[r=2 c=0] m=%o] 
+                            [[r=2 c=1] m=%e]
+                            [[r=2 c=2] m=%e]
+                            ~
+                        ==
+                :_  
+                    %=  
+                    this  
+                    bsize  [r=3 c=3]  
+                    board  (my ntn)  
+                    moves  6  
+                    currplayer  %p1x  
+                    status  %cont  
+                ==  
+            ~
+            ::  End of %teststate case.
+
+            %printstate
+                ~&  'Board='  ~&  board
+                ~&  'Dims='  ~&  bsize
+                ~&  'currplayer='  ~&  currplayer
+                ~&  'moves'  ~&  moves
+                ~&  'status'  ~&  status
+                `this

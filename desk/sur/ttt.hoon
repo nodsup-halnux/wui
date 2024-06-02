@@ -1,31 +1,28 @@
 |%
 +$  action
   :: [!!!] Test and Print state need to be removed, with testfe
-  $%  [%teststate ~]
-      [%newgame ~]
-      [%printstate ~]
-      [%move r=@ud c=@ud ttype=tokensymbol]
-      [%testfe current=playersymbol stat=statussymbol]
+  $%  [%newgame ~]
+      [%move r=@ud c=@ud next=psymbol]
+      [%testfe player=psymbol stat=ssymbol]
   ==
-:: [!!!]  Is an update pattern even needed?
 +$  update  ::these are respones sent by BE to FE client.
   $%  [%init ack=@ud]
-      [%upstate gstat=statussymbol token=tokensymbol r=@ud c=@ud]
+      [%upstate gstat=ssymbol next=psymbol r=@ud c=@ud]
   ==
 ::  An (X), an (O), and (E) for an empty square.
-+$  tokensymbol  $?  %x  %o  %e  ==
++$  tsymbol  $?  %x  %o  %e  ==
 ::  Player 1 uses X's and Player 2 uses O's
 ::  This structure uses @tas'es to represent whose turn it is.
-+$  playersymbol  $?  %p1x  %p2o  ==
++$  psymbol  $?  %p1x  %p2o  ==
 ::  Player 1 has won, Player 2 has won, 
 ::  it's a draw, or the game continues.
-+$  statussymbol  $?  %p1win  %p2win  %draw  %cont  ==
++$  ssymbol  $?  %p1win  %p2win  %draw  %cont  ==
 ::  Board dimensions. Always 3 x 3. Rememember that
 :: list indexes start from zero.
 +$  dims  [rows=@ud cols=@ud]
 +$  coord  [r=@ud c=@ud]
 ::  A more meaningful reference for our map.
-+$  square  tokensymbol
++$  square  tsymbol
 ::  This reprsents our ttt board.
 +$  boardmap  (map coord square)
 ::  Note (!):  For Gall App development, devs do *not*
@@ -35,8 +32,8 @@
                 %0 
                 board=boardmap 
                 bsize=dims 
-                currplayer=playersymbol
+                currplayer=psymbol
                 moves=@ud
-                status=statussymbol
+                status=ssymbol
               ==
 --

@@ -15,7 +15,7 @@
            %+  frond  'upstate'
             %-  pairs
               :~  ['gstat' s+gstat.upd]
-                  ['token' s+token.upd]
+                  ['next' s+next.upd]
                   ['r' (numb r.upd)]
                   ['c' (numb c.upd)]
               ==

@@ -17,6 +17,8 @@
 ::  In the Sail guide, data formatting is just called
 ::  inside the sail elements, using ;+ and ;*.  Here,
 ::  data computation is separated for simplicity.
+=/  ourtape  "There are many other tapes like it, but this tape is my own."
+~&  (int-tape ourtape)  
 =/  clist=(list (list coord))  
     (make-keys rows.bsize.gstate cols.bsize.gstate)
 =/  play-classes  
@@ -38,11 +40,12 @@
       ;+  ;/  style
     ==  ::style
     ;script(type "module")
-      ;+  ;/  script
+      :: oust removes sig from tape conversion.
+      ;+  ;/  (script (oust [0 1] <our.bol>))
     ==
   ==  ::head
   ;body
-    ;h1: %ttt - Tic-Tac-Toe Board:
+    ;h1: %ttt - Tic-Tac-Toe:
     ;h2: Use console pokes to set moves.  
     ;h2: Page auto-refreshes on player %moves.  
     ;h2: See the structure file for more details.
@@ -82,7 +85,7 @@
 ::  and produces the correct classes for our player
 ::  status bar.
 ++  assign-classes
-  |=  [status=statussymbol player=playersymbol]
+  |=  [status=ssymbol player=psymbol]
     ^-  [p1=tape p2=tape]
     ?-  status
         %p1win  [p1="player master" p2="player slave"]
@@ -147,8 +150,6 @@
     .sigdiv {
       width: 50%;
       height: 20%;
-      background-color: orange;
-      color: black;
       text-align: center;
       line-height: 20vh; 
       font-size: 48pt;
@@ -164,7 +165,8 @@
       flex: 1; 
       font-size: 24pt;
       padding: 10px;
-      border: 1px solid #000; 
+      border: 1px solid #000;
+      border-radius:5px; 
     }
     .active {
       background-color: #066508;
@@ -185,7 +187,6 @@
       background-color: gray;
       color: white;
     }
-
   .contain {
       margin-top: 5%;
       width: auto;
@@ -195,12 +196,10 @@
       margin: 0 auto; 
       padding: 10px; 
   }
-
   .boardrow {
       display: flex;
       width: 25%; 
   }
-
   .square {
       border-radius:5px;
       flex: 1;
@@ -214,70 +213,76 @@
       display: flex;
       aspect-ratio: 1 / 1;
   }
-
 '''
 ++  script
-  ^~
-  %-  trip
-'''
- //  We don't have a session.js as we don't use npm build with urbithttp-api
- //  so api.ship must be interpolated, and pulled from our bowl.
-  import urbitHttpApi from "https://cdn.skypack.dev/@urbit/http-api";
- 
- //  Simple init. No need for authentication - as FE inside ship.
-  const api = new urbitHttpApi("", "", "ttt");
-  api.ship = "med";
+  |=  our-bowl=tape
+  ^-  tape 
+  """
+    //  We don't have a session.js as we don't use npm build with urbithttp-api.
+    //  So there is no window.ship variable in session.
+    //  api.ship must be interpolated, and pulled from our bowl.
+    import urbitHttpApi from 'https://cdn.skypack.dev/@urbit/http-api';
 
-  //  This is our subscribe request to Eyre.  Will hit the on-watch arm.
-  var subID = api.subscribe({
-    app: "ttt",
-    path: "/ttt-sub",
-    event: check_callback,
-     err:  check_error
-  })
+    //  Simple init. No need for authentication - as FE is inside ship.
+    const api = new urbitHttpApi('', '', 'ttt');
+    api.ship = '{our-bowl}';
 
-  //Default error function, if something goes wrong.
-  function check_error(er) {
-    console.log(er);
-    alert("we recieved an error from the back-end");
-  }
+    //  This is our subscribe request to Eyre.  Will hit the ++on-watch arm.
+    var subID = api.subscribe(\{
+      app: 'ttt',
+      path: '/ttt-sub',
+      event: check_callback,
+      err:  check_error
+    })
 
-  //This handles %upstate responses from BE. Will update our board for us.
-  function check_callback(upd) {
-    console.log(upd);
-    if ('init' in upd) {
-      console.log("Our Eyre Channel Subscription is: " + api.uid + ", with path: /ttt-sub" );
+    function check_error(er) \{
+      console.log(er);
+      console.log('Error: recieved an error from the back-end');
     }
-    else if ('upstate' in upd) {
-      let uup = upd.upstate;
-      var cell = document.getElementById(uup.r + "-" + uup.c);
-      cell.innerHTML = (uup.token == "o") ? "⭘" : ((uup.token == "x") ? "⨯" : "·");
-      let p1p = document.getElementById("p1");
-      let p2p = document.getElementById("p2"); 
-      switch (uup.gstat) {
-        case 'cont':
-          if (uup.token == 'x') {
-            p1p.className = "player waiting"; p2p.className = "player active";
-          }
-          else if (uup.token == 'o') {
-            p1p.className = "player active"; p2p.className = "player waiting";
-          }
-          break;
-        case 'p1win':
-          p1p.className = "player master"; p2p.className = "player slave";
-          break;
-        case 'p2win':
-          p1p.className = "player slave"; p2p.className = "player master";
-          break;
-        case 'draw':
-          p1p.className = "player limbo"; p2p.className = "player limbo";
-          break;
-        default:
-          console.log("Error:  Invalid game state.");
+
+    //This handles %upstate responses from BE. Will update the board.
+    function check_callback(upd) \{
+      console.log(upd);
+      if ('init' in upd) \{
+        console.log('Our Eyre Channel Subscription is: ' + api.uid + ', with path: /ttt-sub' );
+      }
+      else if ('upstate' in upd) \{
+        let uup = upd.upstate;
+        var cell = document.getElementById(uup.r + '-' + uup.c);
+        cell.innerHTML = (uup.next == 'p1x') ? '⭘' : ((uup.next == 'p2o') ? '⨯' : '·');
+        let p1p = document.getElementById('p1');
+        let p2p = document.getElementById('p2'); 
+        switch (uup.gstat) \{
+          case 'cont':
+            if (uup.next == 'p1x') \{
+              p1p.className = 'player active'; p2p.className = 'player waiting';
+            }
+            else if (uup.next == 'p2o') \{
+              p1p.className = 'player waiting'; p2p.className = 'player active'; 
+            }
+            break;
+          case 'p1win':
+            p1p.className = 'player master'; p2p.className = 'player slave';
+            break;
+          case 'p2win':
+            p1p.className = 'player slave'; p2p.className = 'player master';
+            break;
+          case 'draw':
+            p1p.className = 'player limbo'; p2p.className = 'player limbo';
+            break;
+          default:
+            console.log('[!] Error:  Invalid game state.');
+        }
       }
     }
-  }
+      console.log('Sail page loaded.');
+  """
+::
+++  int-tape  
+  |=  tt=tape
+  ^-  tape 
+  """
+    This is my tape. {tt}.
+  """
 
-    console.log("Sail page loaded.");
-'''
 --

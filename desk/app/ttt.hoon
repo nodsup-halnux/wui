@@ -80,62 +80,32 @@
                     status  %cont    
                 ==  
             ~  :: End of %newgame case.
-            %printstate
-                ~&  'Board='  ~&  board
-                ~&  'Dims='  ~&  bsize
-                ~&  'currplayer='  ~&  currplayer
-                ~&  'moves'  ~&  moves
-                ~&  'status'  ~&  status
-                `this
-            %teststate
-                =/  ntn  
-                        :*
-                            [[r=0 c=0] m=%o] 
-                            [[r=0 c=1] m=%x]
-                            [[r=0 c=2] m=%e]
-                            [[r=1 c=0] m=%o] 
-                            [[r=1 c=1] m=%x]
-                            [[r=1 c=2] m=%x]
-                            [[r=2 c=0] m=%o] 
-                            [[r=2 c=1] m=%e]
-                            [[r=2 c=2] m=%e]
-                            ~
-                        ==
-                :_  
-                    %=  
-                    this  
-                    bsize  [r=3 c=3]  
-                    board  (my ntn)  
-                    moves  6  
-                    currplayer  %p1x  
-                    status  %cont  
-                ==  
-            ~
-            ::  End of %teststate case.
             %move  
             ::  Determine the current player, and switch to the other.
-            =/  next
+            =/  movecell
                 ?:  =(currplayer %p1x)
-                    %p2o
-                    %p1x
+                    [p=%p2o q=%o]
+                    [p=%p1x q=%x]
             :_  
                 %=  this  
-                    board  (~(put by board) [[r.act c.act] [ttype.act]])  
-                    currplayer  next
+                    board  (~(put by board) [[r.act c.act] [q.movecell]])  
+                    currplayer  p.movecell
                     moves  +(moves)
                 ==  
                 :~
-                    [%give %fact ~[/ttt-sub] %ttt-update !>(`update`[%upstate gstat=status token=ttype.act r=r.act c=c.act])]
+                    [%give %fact ~[/ttt-sub] %ttt-update !>(`update`[%upstate gstat=status next=p.movecell r=r.act c=c.act])]
                 ==
             ::End of %move case
+            ::Testfe uses the upstate to test front-end css configs.  
+            ::The move it makes does not matter.
             %testfe
             :_  
                 %=  this  
-                    currplayer  current.act  
+                    currplayer  player.act  
                     status  stat.act  
                 ==  
             :~
-                [%give %fact ~[/ttt-sub] %ttt-update !>(`update`[%upstate gstat=stat.act token=%x r=2 c=2])]
+                [%give %fact ~[/ttt-sub] %ttt-update !>(`update`[%upstate gstat=stat.act next=player.act r=2 c=2])]
             ==
             ::  End of %testfe case.
         ==  ::  End of ?-::
