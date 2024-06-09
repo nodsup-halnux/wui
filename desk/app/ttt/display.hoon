@@ -17,14 +17,12 @@
 ::  In the Sail guide, data formatting is just called
 ::  inside the sail elements, using ;+ and ;*.  Here,
 ::  data computation is separated for simplicity.
-=/  ourtape  "There are many other tapes like it, but this tape is my own."
-~&  (int-tape ourtape)  
 =/  clist=(list (list coord))  
     (make-keys rows.bsize.gstate cols.bsize.gstate)
 =/  play-classes  
     ?:  =(board.gstate ~)
         [p1="player limbo" p2="player limbo"]
-        (assign-classes status.gstate currplayer.gstate)
+        (assign-classes status.gstate next.gstate)
 
 ::  Notes about Sail:  Use a mictar rune for each 
 ::  new %+ turn and sub-elements generated. Using one 
@@ -214,20 +212,33 @@
       aspect-ratio: 1 / 1;
   }
 '''
+::  JS Comments are ugly, so explanation placed here.
+::  We don't have a session.js as we don't use npm build 
+::  with urbithttp-api. So there is no window.ship 
+::  variable in session.  api.ship must be interpolated, 
+::  and pulled from our bowl.
+::
+::  No authentication needed, as page is inside our app
+::  (simple constructor used).
+::
+::  api.subscribe will request to Eyre.  
+::  Will hit app's the ++on-watch arm.
+::
+::  function check_callback handles our %upstate responses 
+::  from BE. Mainly used to update the board.
+::  
+::  Curly braces are escaped \{ as compiler interprets
+::  these in a tape as starting an interpolation site.
+
 ++  script
   |=  our-bowl=tape
   ^-  tape 
   """
-    //  We don't have a session.js as we don't use npm build with urbithttp-api.
-    //  So there is no window.ship variable in session.
-    //  api.ship must be interpolated, and pulled from our bowl.
     import urbitHttpApi from 'https://cdn.skypack.dev/@urbit/http-api';
 
-    //  Simple init. No need for authentication - as FE is inside ship.
     const api = new urbitHttpApi('', '', 'ttt');
     api.ship = '{our-bowl}';
 
-    //  This is our subscribe request to Eyre.  Will hit the ++on-watch arm.
     var subID = api.subscribe(\{
       app: 'ttt',
       path: '/ttt-sub',
@@ -240,7 +251,6 @@
       console.log('Error: recieved an error from the back-end');
     }
 
-    //This handles %upstate responses from BE. Will update the board.
     function check_callback(upd) \{
       console.log(upd);
       if ('init' in upd) \{
@@ -248,17 +258,17 @@
       }
       else if ('upstate' in upd) \{
         let uup = upd.upstate;
-        var cell = document.getElementById(uup.r + '-' + uup.c);
-        cell.innerHTML = (uup.next == 'p1x') ? '⭘' : ((uup.next == 'p2o') ? '⨯' : '·');
+        let cell = document.getElementById(uup.r + '-' + uup.c);
+        cell.innerHTML = (uup.who == 'p1x') ? '⨯' : ((uup.who == 'p2o') ? '⭘' : '·');
         let p1p = document.getElementById('p1');
         let p2p = document.getElementById('p2'); 
         switch (uup.gstat) \{
           case 'cont':
-            if (uup.next == 'p1x') \{
-              p1p.className = 'player active'; p2p.className = 'player waiting';
+            if (uup.who == 'p1x') \{
+              p1p.className = 'player waiting'; p2p.className = 'player active';
             }
-            else if (uup.next == 'p2o') \{
-              p1p.className = 'player waiting'; p2p.className = 'player active'; 
+            else if (uup.who == 'p2o') \{
+              p1p.className = 'player active'; p2p.className = 'player waiting'; 
             }
             break;
           case 'p1win':
@@ -271,18 +281,10 @@
             p1p.className = 'player limbo'; p2p.className = 'player limbo';
             break;
           default:
-            console.log('[!] Error:  Invalid game state.');
+            console.log('[!] Error:  Invalid game state detected.');
         }
       }
     }
-      console.log('Sail page loaded.');
+      console.log('Sail page JS successfully loaded.');
   """
-::
-++  int-tape  
-  |=  tt=tape
-  ^-  tape 
-  """
-    This is my tape. {tt}.
-  """
-
 --

@@ -668,3 +668,20 @@
                 ~&  'moves'  ~&  moves
                 ~&  'status'  ~&  status
                 `this
+
+
+              ::~&  bold  ~&  bnew  
+              ::=/  stash  `boardmap`(~(dif by bnew) bold)
+                ::~&  "stash is: "  ~&  stash  [0 1]
+                ::?~  q=~(tap in ~(key by stash))  !!  
+                ::~&  "i.q is: "  ~&  i.q
+                ::i.q
+
+
+                    ::  For the fact given, we care about who moved now. FE doesn't care about who is next.
+                    :::~
+                    ::    [%give %fact ~[/ttt-sub] %ttt-update !>(`update`[%upstate gstat=status who=p.whonow r=r.act c=c.act])]
+                    ::==
+
+
+[cards this]  

@@ -11,11 +11,13 @@
            %+  frond  'init'
              %-  pairs
               :~  ['ack' (numb ack.upd)]  ==
+      ::  We can construct more complicated pair
+      ::  structures, but atomic is more simple.
       %upstate
            %+  frond  'upstate'
             %-  pairs
               :~  ['gstat' s+gstat.upd]
-                  ['next' s+next.upd]
+                  ['who' s+who.upd]
                   ['r' (numb r.upd)]
                   ['c' (numb c.upd)]
               ==

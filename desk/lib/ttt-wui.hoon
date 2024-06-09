@@ -23,7 +23,10 @@
 ::  is a namespace issue.
 ::  These shorthands are used instead.
 +$  cag  card:agent:gall
-::  Please don't give me "that" look rn.
+::  Years of wondering why I can't use "that" in a 
+::  language that implements OOP have cumulated into
+::  this perfect, final moment.  
+::  I'm clapping on the inside rn.
 +$  that  agent:gall
 ++  agent  
   |=  game=agent:gall
@@ -70,7 +73,26 @@
           ~&  "ttt-wui: Poke request. mark="  ~&  mark
           ?+  mark
             :: If not an HTTP request, send straight to %ttt
-              =^  cards  game  (on-poke:ag mark vase)  [cards this]
+            =/  pre-state  !<(appstate on-save:ag)
+            =^  cards  game  (on-poke:ag mark vase)
+            =/  post-state  !<(appstate on-save:ag)
+            =/  delta  (state-delta pre-state post-state) 
+            =/  upcard  
+                :*  %give 
+                    %fact 
+                    ~[/ttt-sub] 
+                    %ttt-update 
+                    :: A rare tall-form zap-gar appears.
+                    !>(`update`[%upstate gstat=st.delta who=cp.delta r=r.rc.delta c=c.rc.delta])
+                ==
+            ~&  cards  
+            ?~  cards
+              :: If it is sig, we for a basic list
+              :_  this  [upcard]~
+              ::  If not, we append it to our current list.
+              :_  this  (snoc cards upcard)
+            ::  End of internal poke.
+            ::The only other possible mark - a browser request
               %handle-http-request
                 (handle-http !<([@ta inbound-request:eyre] vase))
           ==  ::End ?+  
@@ -106,7 +128,7 @@
                         =/  gamestate  !<(appstate on-save:ag)  
                         :: The board can be ~, but the gamestate itself cannot.
                         :: If this happens we have a serious error.
-                          =/  ourpage  (make-200 rid (display bol gamestate))
+                        =/  ourpage  (make-200 rid (display bol gamestate))
                           :_  this  ourpage
                           
                   == ::End ?+
@@ -131,6 +153,33 @@
                   [%give %fact ~[/http-response/[rid]] %http-response-data !>(dat)]
                   [%give %kick ~[/http-response/[rid]] ~]
               ==
+          ::We only care about the player, the game state, and the 
+          ::coordinate for the move.
+          +$  delta-state  
+            $:  rc=coord
+              cp=psymbol
+            st=ssymbol
+          ==
+          ++  state-delta  
+            |=  [old=appstate new=appstate]
+              ^-  delta-state
+              :+  (map-diff board.old board.new) 
+                next.old
+              status.new
+          ::  What is going on:
+          ::  ~(tap by bold)  turns a map into a [k v] list
+          ::  ~(gas in ...)  ~tap by...  : takes our [k v] list and puts it into
+          ::  we turn maps into [k v] sets, so that we can call:
+          ::  (~(dif in newset) oldset) which picks out our last move...to form
+          :: the upstate card.
+          ++  map-diff
+            |=  [bold=boardmap bnew=boardmap]
+              ^-  coord
+              =/  oldset  `(set [coord tsymbol])`(~(gas in `(set [coord tsymbol])`~) ~(tap by bold))
+              =/  newset  `(set [coord tsymbol])`(~(gas in `(set [coord tsymbol])`~) ~(tap by bnew))
+              =/  difflist  ~(tap in `(set [coord tsymbol])`(~(dif in newset) oldset))
+              ?~  difflist  !!  
+                ~&  "our difference is: "  ~&  -.i.difflist  -.i.difflist
           -- ::End of |^
 ::
 ++  on-peek   |=(path ~)

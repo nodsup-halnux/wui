@@ -76,48 +76,54 @@
                         [r=3 c=3]  
                         board  (my ntn)  
                         moves  0  
-                        currplayer  %p1x  
+                        next  %p1x  
                     status  %cont    
                 ==  
+            :: No cards.
             ~  :: End of %newgame case.
             %move  
             ::  Determine the current player, and switch to the other.
-            =/  movecell
-                ?:  =(currplayer %p1x)
-                    [p=%p2o q=%o]
-                    [p=%p1x q=%x]
-            :_  
-                %=  this  
-                    board  (~(put by board) [[r.act c.act] [q.movecell]])  
-                    currplayer  p.movecell
-                    moves  +(moves)
-                ==  
-                :~
-                    [%give %fact ~[/ttt-sub] %ttt-update !>(`update`[%upstate gstat=status next=p.movecell r=r.act c=c.act])]
-                ==
-            ::End of %move case
+            ::  If we try to move the player that is not next, crash!
+            ?>  =(next next.act)
+                :: The game state records next player to move, but for some
+                :: parts of the app we need to know who just moved. So both
+                :: who structures are spawned for simplicity.
+                =/  whonow  
+                    ?:  =(next %p1x)
+                        [p=%p1x q=%x]
+                        [p=%p2o q=%o]
+                =/  whonext  
+                    ?:  =(next %p1x)
+                        [p=%p2o q=%o]
+                        [p=%p1x q=%x]
+                :_  
+                    %=  this
+                        board  (~(put by board) [[r.act c.act] [q.whonow]])  
+                        next  p.whonext
+                        moves  +(moves)
+                    ==  
+                    ~
+                ::End of %move case
             ::Testfe uses the upstate to test front-end css configs.  
             ::The move it makes does not matter.
             %testfe
             :_  
                 %=  this  
-                    currplayer  player.act  
+                    next  player.act  
                     status  stat.act  
                 ==  
             :~
-                [%give %fact ~[/ttt-sub] %ttt-update !>(`update`[%upstate gstat=stat.act next=player.act r=2 c=2])]
+                [%give %fact ~[/ttt-sub] %ttt-update !>(`update`[%upstate gstat=stat.act who=player.act r=2 c=2])]
             ==
             ::  End of %testfe case.
         ==  ::  End of ?-::
-::  All arms below just defaulted - no special
-::  implementation for this app.
 ++  on-peek  on-peek:default
 ++  on-watch
     |=  =path  
         ^-  (quip card _this)
         ?~  path  ~&  "Warning: on-watch path is ~ (!!)"  !!
             ~&  "on-watch %ttt app FE subscribe... "  ~&  "path is:"  ~&  path
-            ::give a fact back
+            ::give a fact back - let FE know it sub was OK.
             :_  this  [%give %fact ~[path] %ttt-update !>(`update`[%init ack=1])]~
 ++  on-arvo   on-arvo:default
 ++  on-leave  on-leave:default
