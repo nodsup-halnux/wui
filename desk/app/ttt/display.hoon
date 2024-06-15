@@ -19,10 +19,7 @@
 ::  data computation is separated for simplicity.
 =/  clist=(list (list coord))  
     (make-keys rows.bsize.gstate cols.bsize.gstate)
-=/  play-classes  
-    ?:  =(board.gstate ~)
-        [p1="player limbo" p2="player limbo"]
-        (assign-classes status.gstate next.gstate)
+=/  play-classes  (assign-classes status.gstate next.gstate)
 
 ::  Notes about Sail:  Use a mictar rune for each 
 ::  new %+ turn and sub-elements generated. Using one 
@@ -49,8 +46,6 @@
     ;h2: See the structure file for more details.
     ;br;
     ;br;
-      ;+  ?:  =(board.gstate ~)
-        ;div.sigdiv:  ~ No game state initialized. Start a %newgame ~ 
         ;div.contain
           ;*  ?~  clist  !!
             %+  turn  clist
@@ -60,13 +55,17 @@
                 ?~  rclist  !!
                   %+  turn  rclist
                   |=  rc=coord
-                    =/  val  (need (~(get by board.gstate) rc))
-                    =/  symbol  ?-  val
-                            %o  "⭘"
-                            %e  "·"
-                            %x  "⨯"
-                          ==
-                      ;div(class "square", id "{<r.rc>}-{<c.rc>}"): {symbol} 
+                    ?:  (~(has by board.gstate) rc)
+                      ::T: Display the unique piece. It is present, so no (need...
+                      =/  val  (~(get by board.gstate) rc)
+                      =/  symbol  ?-  (need val)
+                              %o  "⭘"
+                              %x  "⨯"
+                              %e  "·"
+                            ==
+                        ;div(class "square", id "{<r.rc>}-{<c.rc>}"): {symbol} 
+                      :: F: No item present. Let's make a default (dotted) square.
+                      ;div(class "square", id "{<r.rc>}-{<c.rc>}"): {"·"}
               == ::div board
       ==  ::div contain
       ;br;

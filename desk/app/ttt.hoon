@@ -5,6 +5,8 @@
 :: Note:  Our state structure has been defined in /sur
 :: This is done to aide the twui wrapper - this is not
 :: standard practice in app development.
+::  Set for our ~?  conditional gates to fire
+=/  debugmode  %.n
 |%
     +$  versioned-state
     $%  state-0
@@ -47,34 +49,20 @@
 ++  on-poke
     |=  [=mark =vase]
         ^-  (quip card _this)
-        ~&  '%ttt on-poke arm hit:'  ~&  mark
+        ~?  debugmode
+            ~&  '%ttt on-poke arm hit:'  mark
         =/  act  !<(action vase)
         ::  Unrecognized actions do nothing, instead
         ::  of crashing out.
         ?-  -.act
             ::Make a new game, or reset the game.
             %newgame
-                ~&  "TTT has received a newgame poke."
                 :: Manually form our board cell.
-                =/  ntn  
-                    :*
-                        [[r=0 c=0] m=%e] 
-                        [[r=0 c=1] m=%e]
-                        [[r=0 c=2] m=%e]
-                        [[r=1 c=0] m=%e] 
-                        [[r=1 c=1] m=%e]
-                        [[r=1 c=2] m=%e]
-                        [[r=2 c=0] m=%e] 
-                        [[r=2 c=1] m=%e]
-                        [[r=2 c=2] m=%e]
-                    ~
-                ==
-                ::  Our [state card] cell
                 :_  
                     %=  
-                        this  bsize  
-                        [r=3 c=3]  
-                        board  (my ntn)  
+                        this  
+                        bsize  [r=3 c=3]  
+                        board  *boardmap  
                         moves  0  
                         next  %p1x  
                     status  %cont    
@@ -88,6 +76,7 @@
                 :: The game state records next player to move, but for some
                 :: parts of the app we need to know who just moved. So both
                 :: who structures are spawned for simplicity.
+                ::  These structures can be simplified once testing is complete.
                 =/  whonow  
                     ?:  =(next %p1x)
                         [p=%p1x q=%x]
@@ -113,9 +102,17 @@
                     status  stat.act  
                 ==  
             :~
-                [%give %fact ~[/ttt-sub] %ttt-update !>(`update`[%upstate gstat=stat.act who=player.act r=2 c=2])]
+                :*
+                    %give 
+                    %fact
+                    ~[/ttt-sub]
+                    %ttt-update
+                    !>(`update`[%upstate gstat=stat.act who=player.act r=2 c=2])
+                ==
             ==
-            ::  End of %testfe case.
+            ::  to test our outer ttt-wui 
+            ::  - for the no difference in board case.
+            %donothing  `this
         ==  ::  End of ?-::
 ++  on-peek  on-peek:default
 ++  on-watch

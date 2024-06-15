@@ -5,6 +5,7 @@
         ::  compared against app state for verification.
         [%move r=@ud c=@ud next=psymbol]
         [%testfe player=psymbol stat=ssymbol]
+        [%donothing ~]
     ==
   ::these are respones sent by BE to FE client.
   +$  update  
