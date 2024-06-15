@@ -40,8 +40,9 @@
     ;style
       ;+  ;/  style
     ==  ::style
-    ;script
-      ;+  ;/  script
+    ;script(type "module")
+      :: oust removes sig from tape conversion.
+      ;+  ;/  (script (oust [0 1] <our.bol>))
     ==
   ==  ::head
   ;body(style (board-colors playing.mstate))
@@ -158,6 +159,8 @@
   %-  trip
 '''
     body {
+      background-color:#333333;
+      color:#c6a615;
       text-align: center;
       font-size:24pt;
     }
@@ -209,12 +212,53 @@
     }
 
 '''
+::  JS Comments are ugly, so explanation placed here.
+::  We don't have a session.js as we don't use npm build 
+::  with urbithttp-api. So there is no window.ship 
+::  variable in session.  api.ship must be interpolated, 
+::  and pulled from our bowl.
+::
+::  No authentication needed, as page is inside our app
+::  (simple constructor used).
+::
+::  api.subscribe will request to Eyre.  
+::  Will hit app's the ++on-watch arm.
+::
+::  function check_callback handles our %upstate responses 
+::  from BE. Mainly used to update the board.
+::  
+::  Curly braces are escaped \{ as compiler interprets
+::  these in a tape as starting an interpolation site.
+::
+::  In closing, the unpleasant look of JS
+::  slammed in a gate beats dealing a bloated 
+::  node_modules folder, and minified code.
+
 ++  script
-  ^~
-  %-  trip
-'''
-        window.onload = function() {
-            alert("Page has loaded!");
-        };
-'''
+  |=  our-bowl=tape
+  ^-  tape 
+  """
+    import urbitHttpApi from 'https://cdn.skypack.dev/@urbit/http-api';
+
+    const api = new urbitHttpApi('', '', 'ttt');
+    api.ship = '{our-bowl}';
+
+    var subID = api.subscribe(\{
+      app: 'mines',
+      path: '/mines-sub',
+      event: check_callback,
+      err:  check_error
+    })
+
+    function check_error(er) \{
+      console.log(er);
+      console.log('Error: recieved an error from the back-end');
+    }
+
+    function check_callback(upd) \{
+      console.log(upd);
+    }
+
+    console.log('Sail page JS successfully loaded.');
+  """
 --

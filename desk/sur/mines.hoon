@@ -18,7 +18,7 @@
       =tiles
       dims=coord
       playing=status
-      ::playing=_| ??
+      ::playing=_| ???
   ==
 ::
 +$  coord  [x=@ y=@]
@@ -31,7 +31,17 @@
       [%start =coord n=@]  :: start game
       ::  These two states have been added, to assist
       ::  In debugging. Also, the game app isn't finished.
-      [%check-win ~]   ::  flag and test call this.
+      [%check-win ~]   
+      ::  flag and test call this.
       [%set-playing stat=status]
+  ==
++$  update
+      ::  Doing a GET request in Browser will always load 
+    ::  the entire board, based on current state.
+      ::Sent only for sub request (spawned by GET)
+    $%  [%init ack=@ud]
+        ::  FE only wants update about player
+        ::  who just moved, not next player.
+        [%upstate gstat=status who=@ud r=@ud c=@ud]
   ==
 --

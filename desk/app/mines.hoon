@@ -187,7 +187,10 @@
         tiles
           %hide
         ?:  (~(has in mines) coord)
-          ~&  >>>  'You stepped on a mine! Game Over.'
+          ::T - then we have lost
+          ~&  >>>  ~&  'You stepped on a mine! Game Over.'
+            (~(put by tiles) coord %mine)
+          ::F - then add the mine to the tiles set.
           =.  playing  %lose
           (~(put by tiles) coord %mine)
         ?:  (~(has by neighbors) coord)
