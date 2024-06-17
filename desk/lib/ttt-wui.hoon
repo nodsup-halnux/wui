@@ -5,7 +5,7 @@
 ::  our path to our frontpage display.
 /=  display  /app/ttt/display
 ::  Set for our ~?  conditional gates to fire
-=/  debugmode  %.n
+=/  debugmode  %.y
 |%
 +$  cag  card:agent:gall
 ++  agent  
@@ -80,7 +80,7 @@
                     %fact 
                     ~[/ttt-sub] 
                     %ttt-update 
-                    !>(`update`[%upstate gstat=st.delta who=cp.delta r=r.rc.delta c=c.rc.delta])
+                    !>(`update`[%upstate gstat=status.post-state who=next.pre-state ourmap=board.post-state])
                 ==
                 ::  Add our upcard to the end of our cards.
                 :_  this  (snoc cards upcard)
@@ -89,6 +89,7 @@
                   (handle-http !<([@ta inbound-request:eyre] vase))
             ==  ::End ?+  
         ::End $-arm
+::
           ++  handle-http 
             :: Eyre takes our browser poke, and passes 
             :: a complex request structure.

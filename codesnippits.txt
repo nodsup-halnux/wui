@@ -763,3 +763,52 @@
                 =/  newset  ^-  (set [coord tsymbol])
                   (~(gas in `(set [coord tsymbol])`~) ~(tap by bnew))
                 =/  difflist  ~(tap in `(set [coord tsymbol])`(~(dif in newset) oldset))  difflist
+
+
+(frond:enjs:format 'upstate' (frond:enjs:format 'ourmap' s+'bar'))
+
+(frond:enjs:format 'upstate' (frond:enjs:format 'ourlist' (pairs:enjs:format ~[['foo' n+~.123] ['bar' s+'abc'] ['baz' b+&]])))
+
+::  Now we need a boardmap to be converted into a list. THis is done with ~(tap by <map>)
+
+
+%+  frond:enjs:format  'upstate'
+%-  pairs:enjs:format
+  :~  
+      ['r' (numb:enjs:format 5)]
+      ['c' (numb:enjs:format 6)]
+  ==
+
+
+(en:json:html [%a p=~[[%s p='[foo bar baz]']]])
+
+
+              =/  upcard  
+                :*  %give 
+                    %fact 
+                    ~[/ttt-sub] 
+                    %ttt-update 
+                    !>(`update`[%upstate gstat=st.delta who=cp.delta r=r.rc.delta c=c.rc.delta])
+                ==
+
+
+        //for each element of the array
+        up2array.forEach(item => \{procesCell(item);});
+
+
+      else if ('upstate' in upd) \{
+        let uup = upd.upstate;
+        let cell = document.getElementById(uup.r + '-' + uup.c);
+        cell.innerHTML = (uup.who == 'p1x') ? '⨯' : ((uup.who == 'p2o') ? '⭘' : '·');
+      }
+
+
+      %upstate
+           %+  frond  'upstate'
+            %-  pairs
+              :~  ['gstat' s+gstat.upd]
+                  ['who' s+who.upd]
+                  ['r' (numb r.upd)]
+                  ['c' (numb c.upd)]
+              ==
+

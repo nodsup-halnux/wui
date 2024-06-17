@@ -92,27 +92,60 @@
                         moves  +(moves)
                     ==  
                     ~
-                ::End of %move case
-            ::Testfe uses the upstate to test front-end css configs.  
-            ::The move it makes does not matter.
-            %testfe
-            :_  
-                %=  this  
-                    next  player.act  
-                    status  stat.act  
-                ==  
-            :~
-                :*
-                    %give 
-                    %fact
-                    ~[/ttt-sub]
-                    %ttt-update
-                    !>(`update`[%upstate gstat=stat.act who=player.act r=2 c=2])
-                ==
-            ==
-            ::  to test our outer ttt-wui 
+            ::  To test our outer ttt-wui 
             ::  - for the no difference in board case.
             %donothing  `this
+            ::  This is done to return a huge structure 
+            ::  test our /mar update file.
+            %setboardtest1
+                 =/  ntn  
+                    :*
+                        [[r=0 c=0] m=%o] 
+                        [[r=0 c=1] m=%x]
+                        [[r=0 c=2] m=%o]
+                        [[r=1 c=0] m=%x] 
+                        [[r=1 c=1] m=%o]
+                        [[r=1 c=2] m=%x]
+                        [[r=2 c=0] m=%o] 
+                        [[r=2 c=1] m=%x]
+                        [[r=2 c=2] m=%o]
+                    ~
+                    ==
+                :_  
+                    %=  
+                        this  bsize  
+                        [r=3 c=3]  
+                        board  (my ntn)  
+                        moves  0  
+                        next  %p1x
+                        status  %cont    
+                    ==
+                    ~
+            ::  Board flipped, player flipped to test FE
+            %setboardtest2
+                 =/  ntn  
+                    :*
+                        [[r=0 c=0] m=%x] 
+                        [[r=0 c=1] m=%o]
+                        [[r=0 c=2] m=%x]
+                        [[r=1 c=0] m=%o] 
+                        [[r=1 c=1] m=%x]
+                        [[r=1 c=2] m=%o]
+                        [[r=2 c=0] m=%x] 
+                        [[r=2 c=1] m=%o]
+                        [[r=2 c=2] m=%x]
+                    ~
+                    ==
+                :_  
+                    %=  
+                        this  bsize  
+                        [r=3 c=3]  
+                        board  (my ntn)  
+                        moves  0  
+                        next  %p2o
+                        status  %cont    
+                    ==
+                    ~
         ==  ::  End of ?-::
 ++  on-peek  on-peek:default
 ++  on-watch

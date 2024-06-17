@@ -4,8 +4,10 @@
         ::  for a move, we specify who is next. This is
         ::  compared against app state for verification.
         [%move r=@ud c=@ud next=psymbol]
-        [%testfe player=psymbol stat=ssymbol]
+        ::  In the final version, these will be removed.
         [%donothing ~]
+        [%setboardtest1 ~]
+        [%setboardtest2 ~]
     ==
   ::these are respones sent by BE to FE client.
   +$  update  
@@ -15,7 +17,7 @@
     $%  [%init ack=@ud]
         ::  FE only wants update about player
         ::  who just moved, not next player.
-        [%upstate gstat=ssymbol who=psymbol r=@ud c=@ud]
+        [%upstate gstat=ssymbol who=psymbol ourmap=boardmap]
   ==
   ::  An (X), an (O), and (E) for an empty square.
   +$  tsymbol  $?  %x  %o  %e  ==

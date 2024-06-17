@@ -228,62 +228,78 @@
 ::  
 ::  Curly braces are escaped \{ as compiler interprets
 ::  these in a tape as starting an interpolation site.
+::
+::  In closing, the unpleasant look of JS
+::  slammed in a gate beats dealing a bloated 
+::  node_modules folder, and minified code.
 
 ++  script
   |=  our-bowl=tape
   ^-  tape 
   """
-    import urbitHttpApi from 'https://cdn.skypack.dev/@urbit/http-api';
+  import urbitHttpApi from 'https://cdn.skypack.dev/@urbit/http-api';
 
-    const api = new urbitHttpApi('', '', 'ttt');
-    api.ship = '{our-bowl}';
+  const api = new urbitHttpApi('', '', 'ttt');
+  api.ship = '{our-bowl}';
 
-    var subID = api.subscribe(\{
-      app: 'ttt',
-      path: '/ttt-sub',
-      event: check_callback,
-      err:  check_error
-    })
+  var subID = api.subscribe(\{
+    app: 'ttt',
+    path: '/ttt-sub',
+    event: check_callback,
+    err:  check_error
+  })
 
-    function check_error(er) \{
-      console.log(er);
-      console.log('Error: recieved an error from the back-end');
-    }
+  function check_error(er) \{
+    console.log(er);
+  }
 
-    function check_callback(upd) \{
-      console.log(upd);
-      if ('init' in upd) \{
-        console.log('Our Eyre Channel Subscription is: ' + api.uid + ', with path: /ttt-sub' );
-      }
-      else if ('upstate' in upd) \{
-        let uup = upd.upstate;
-        let cell = document.getElementById(uup.r + '-' + uup.c);
-        cell.innerHTML = (uup.who == 'p1x') ? '⨯' : ((uup.who == 'p2o') ? '⭘' : '·');
-        let p1p = document.getElementById('p1');
-        let p2p = document.getElementById('p2'); 
-        switch (uup.gstat) \{
-          case 'cont':
-            if (uup.who == 'p1x') \{
-              p1p.className = 'player waiting'; p2p.className = 'player active';
-            }
-            else if (uup.who == 'p2o') \{
-              p1p.className = 'player active'; p2p.className = 'player waiting'; 
-            }
-            break;
-          case 'p1win':
-            p1p.className = 'player master'; p2p.className = 'player slave';
-            break;
-          case 'p2win':
-            p1p.className = 'player slave'; p2p.className = 'player master';
-            break;
-          case 'draw':
-            p1p.className = 'player limbo'; p2p.className = 'player limbo';
-            break;
-          default:
-            console.log('[!] Error:  Invalid game state detected.');
+  function state_set(gstat, who) \{
+    let p1p = document.getElementById('p1');
+    let p2p = document.getElementById('p2'); 
+    switch (gstat) \{
+      case 'cont':
+        if (who == 'p1x') \{
+          p1p.className = 'player waiting'; 
+          p2p.className = 'player active';
         }
-      }
+        else if (who == 'p2o') \{
+          p1p.className = 'player active'; 
+          p2p.className = 'player waiting'; 
+        }
+        break;
+      case 'p1win':
+        p1p.className = 'player master'; 
+        p2p.className = 'player slave';
+        break;
+      case 'p2win':
+        p1p.className = 'player slave'; 
+        p2p.className = 'player master';
+        break;
+      case 'draw':
+        p1p.className = 'player limbo'; 
+        p2p.className = 'player limbo';
+        break;
+      default:
+        console.log('[!] Error:  Invalid game state detected.');
     }
-      console.log('Sail page JS successfully loaded.');
+  }
+
+  function check_callback(upd) \{
+    console.log(upd);
+    if ('init' in upd) \{
+      console.log('Eyre Channel Subscription is: ' + api.uid + ', path: /ttt-sub' );
+    }
+    else if ('upstate' in upd) \{
+      let uparr = upd.upstate.board;
+      for (let i = 0; i < uparr.length; i++) \{
+        let item = uparr[i];
+        let bcell = document.getElementById(item.r + '-' + item.c);
+        bcell.innerHTML = (item.sq == 'x') ? '⨯' : ((item.sq == 'o') ? '⭘' : '·');
+      }
+      state_set(upd.upstate.gstat, upd.upstate.who);
+    }
+  }
+
+  console.log('Sail page JS successfully loaded.');
   """
 --
