@@ -45,7 +45,9 @@
     ;h2: Page auto-refreshes on player %moves.  
     ;h2: See the structure file for more details.
     ;br;
-    ;br;
+    ;br;  
+    ;+  ?:  =(rows.bsize.gstate 0)
+        ;div.sigdiv:  Bunted game state detected. Please make a newgame poke to begin.
         ;div.contain
           ;*  ?~  clist  !!
             %+  turn  clist
@@ -84,15 +86,18 @@
 ++  assign-classes
   |=  [status=ssymbol player=psymbol]
     ^-  [p1=tape p2=tape]
-    ?-  status
-        %p1win  [p1="player master" p2="player slave"]
-        %p2win  [p1="player slave" p2="player master"]
-        %draw  [p1="player limbo" p2="player limbo"]  
-        %cont 
-          ?:  =(player %p1x)
-            [p1="player active" p2="player waiting"]
-            [p1="player waiting" p2="player active"]
-    ==
+    :: Null case: state is bunted.
+    ?:  =(rows.bsize.gstate 0)
+      [p1="player limbo" p2="player limbo"]
+      ?-  status
+          %p1win  [p1="player master" p2="player slave"]
+          %p2win  [p1="player slave" p2="player master"]
+          %draw  [p1="player limbo" p2="player limbo"]  
+          %cont 
+            ?:  =(player %p1x)
+              [p1="player active" p2="player waiting"]
+              [p1="player waiting" p2="player active"]
+      ==
 ::  This gate generates keys for our board map.
 ++  make-keys 
   |=  [rmax=@ud cmax=@ud]
@@ -148,7 +153,6 @@
       width: 50%;
       height: 20%;
       text-align: center;
-      line-height: 20vh; 
       font-size: 48pt;
       margin: 0 auto; 
       display: block;
@@ -225,7 +229,12 @@
 ::
 ::  function check_callback handles our %upstate responses 
 ::  from BE. Mainly used to update the board.
-::  
+::
+::  When an upstate card is recieved, we do three things
+::  (1) reset the board with board_scrub, (2) set the board
+::  with board_set, and (3) set status bar with
+::  set_state.  
+::
 ::  Curly braces are escaped \{ as compiler interprets
 ::  these in a tape as starting an interpolation site.
 ::
@@ -284,18 +293,31 @@
     }
   }
 
+  function board_scrub(r,c) \{
+    for (let i = 0; i < r; i++) \{
+      for (let j = 0; j < c; j++) \{
+        let bcell = document.getElementById(i + '-' + j);
+        bcell.innerHTML = '·';
+      }
+    }
+  }
+
+  function board_set(uparr) \{
+      for (let i = 0; i < uparr.length; i++) \{
+        let item = uparr[i];
+        let bcell = document.getElementById(item.r + '-' + item.c);
+        bcell.innerHTML = (item.sq == 'x') ? '⨯' : ((item.sq == 'o') ? '⭘' : '·');
+      }
+  }
+
   function check_callback(upd) \{
     console.log(upd);
     if ('init' in upd) \{
       console.log('Eyre Channel Subscription is: ' + api.uid + ', path: /ttt-sub' );
     }
     else if ('upstate' in upd) \{
-      let uparr = upd.upstate.board;
-      for (let i = 0; i < uparr.length; i++) \{
-        let item = uparr[i];
-        let bcell = document.getElementById(item.r + '-' + item.c);
-        bcell.innerHTML = (item.sq == 'x') ? '⨯' : ((item.sq == 'o') ? '⭘' : '·');
-      }
+      board_scrub(3,3);
+      board_set(upd.upstate.board);
       state_set(upd.upstate.gstat, upd.upstate.who);
     }
   }

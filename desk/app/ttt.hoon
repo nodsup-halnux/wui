@@ -146,6 +146,46 @@
                         status  %cont    
                     ==
                     ~
+            ::  Test a half board update, vs all or 1 move.
+            %halfboard1
+                 =/  ntn  
+                    :*
+                        [[r=0 c=0] m=%x] 
+                        [[r=0 c=2] m=%x]
+                        [[r=1 c=1] m=%x]
+                        [[r=2 c=0] m=%x] 
+                        [[r=2 c=2] m=%x]
+                    ~
+                    ==
+                :_  
+                    %=  
+                        this  bsize  
+                        [r=3 c=3]  
+                        board  (my ntn)  
+                        moves  0  
+                        next  %p2o
+                        status  %cont    
+                    ==
+                    ~
+            %halfboard2
+                 =/  ntn  
+                    :*
+                        [[r=0 c=1] m=%o]
+                        [[r=1 c=0] m=%o] 
+                        [[r=1 c=2] m=%o]
+                        [[r=2 c=1] m=%o]
+                    ~
+                    ==
+                :_  
+                    %=  
+                        this  bsize  
+                        [r=3 c=3]  
+                        board  (my ntn)  
+                        moves  0  
+                        next  %p1x
+                        status  %cont    
+                    ==
+                    ~
         ==  ::  End of ?-::
 ++  on-peek  on-peek:default
 ++  on-watch
