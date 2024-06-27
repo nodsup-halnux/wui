@@ -21,7 +21,7 @@
 =/  utfsymbol  [dot="·" flag="⚑" mine="☠"]
 ::  The playing field %win %lose %live determines
 ::  the board colors.
-=/  boardcolors  (board-colors playing.mstate)
+=/  boardcolors  body-colors
 ::
 ::  In the Sail guide, data formatting is just called
 ::  inside the sail elements, using ;+ and ;*.  Here,
@@ -45,10 +45,12 @@
       ;+  ;/  (script (oust [0 1] <our.bol>))
     ==
   ==  ::head
-  ;body(style (board-colors playing.mstate))
+  ::  body-colors is just a non-sample gate.
+  ;body(style body-colors)
     ;h1: %mines - Minesweeper Board:
     ;p: Use console pokes to set moves.  Refresh the page to see the results.  
-    ;p: Counting for board positions starts from zero.  See the /sur files for details on moves. 
+    ;p: Counting for board positions starts from zero.
+    ;p:  See the /sur files for details on moves. 
     ::  ~? seemed to be causing a nasty mull-grow error
     ::  switching to ?: seemed to help.
     ::  if you bake your map, you can get lost ~
@@ -110,7 +112,10 @@
       ?:  (lth wid 999)
         "width:{<wid>}px;"
         =/  convert  (oust [1 1] <wid>)  "width:{convert}px;"
-        
+
+::  Colors: espresso and yellow-orange.
+++  body-colors
+  ^-  tape  "background-color:#333333;color:#c6a615;"
 ++  board-colors
   |=  stat=status
     ^-  main=tape 
@@ -195,7 +200,7 @@
     .square {
         flex: 1;
         padding: 2px;
-        background-color:#066508;
+        background-color:#066508; 
         border: 1px solid #03440E;
         font-size: 40pt;
         align-items: center;
@@ -240,7 +245,7 @@
   """
     import urbitHttpApi from 'https://cdn.skypack.dev/@urbit/http-api';
 
-    const api = new urbitHttpApi('', '', 'ttt');
+    const api = new urbitHttpApi('', '', 'mines');
     api.ship = '{our-bowl}';
 
     var subID = api.subscribe(\{
@@ -250,6 +255,88 @@
       err:  check_error
     })
 
+    function board_scrub(rmax,cmax) \{
+      for (let i = 0; i < rmax; i++) \{
+        for (let j = 0; j < cmax; j++) \{
+          let bcell = document.getElementById(i + '-' + j);
+          bcell.innerHTML = '·';
+        }
+      }
+    }
+
+  // Non intuitively, x is row, y is col. 
+  // origin is at TL corner!
+  function board_set(uparr) \{
+      for (let i = 0; i < uparr.length; i++) \{
+        let item = uparr[i];
+        let bcell = document.getElementById(item.x + '-' + item.y);
+        let cellsymbol = '?';
+
+        switch (item.sq) \{
+          case '%mine':
+            cellsymbol = '☠'; break;
+          case '%flag':
+            cellsymbol = '⚑'; break;
+          case '%0':
+            cellsymbol = '0'; break;
+          case '%1':
+            cellsymbol = '1'; break;
+          case '%2':
+            cellsymbol = '2'; break;
+          case '%3':
+            cellsymbol = '3'; break;
+          case '%4':
+            cellsymbol = '4'; break;
+          case '%5':
+            cellsymbol = '5'; break;
+          case '%6':
+            cellsymbol = '6'; break;
+          case '%7':
+            cellsymbol = '7'; break;
+          case '%8':
+            cellsymbol = '8'; break;
+          default:
+            console.log("Error:  Unknown square character detected.");
+        }
+        bcell.innerHTML = cellsymbol;
+      }
+  }
+    function state_set(rmax,cmax,stat) \{
+      var fontCol = '#c6a615';
+      var bgCol = '#066508';
+      var flagCol = '#0D6CE5';
+      var mineCol = '#E5480D'
+      if (stat == 'win') \{
+        fontCol = "#FFFFFF";
+        bgCol = "#00FF00";
+        flagCol = fontCol;
+        mineCol = fontCol;
+      }
+      else if (stat == 'lose') \{
+        fontCol = '#FFFFFF';
+        bgCol = '#FF0000';
+        flagCol = fontCol;
+        mineCol = fontCol;
+      }
+      else \{
+        console.log("Error: Unknown Game State detected.");
+      }
+
+      for (let i = 0; i < rmax; i++) \{
+        for (let j = 0; j < cmax; j++) \{
+          let bcell = document.getElementById(i + '-' + j);
+          bcell.style.color = fontCol;
+          if (bcell.innerHTML == '☠') \{
+            bcell.style.color = mineCol;
+          }
+          else if (bcell.innerHTML == '⚑') \{
+            bcell.style.color = flagCol;
+          }
+          bcell.style.backgroundColor = bgCol;
+        }
+      }
+    }
+
     function check_error(er) \{
       console.log(er);
       console.log('Error: recieved an error from the back-end');
@@ -257,6 +344,16 @@
 
     function check_callback(upd) \{
       console.log(upd);
+      if ('init' in upd) \{
+        console.log('Eyre Channel Subscription is: ' + api.uid + ', path: /mines-sub' );
+      }
+      else if ('upstate' in upd) \{
+        let rmax = upd.upstate.rmax;
+        let cmax = upd.upstate.cmax;
+        board_scrub(rmax, cmax);
+        board_set(upd.upstate.board);
+        state_set(rmax, cmax, upd.upstate.gstat);
+      }
     }
 
     console.log('Sail page JS successfully loaded.');

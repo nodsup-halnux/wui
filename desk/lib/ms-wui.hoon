@@ -51,9 +51,19 @@
               ~&  "ms-wui: Poke request. Mark:"  mark
           ?+  mark
             :: If not an HTTP request, send straight to %mines
-              =^  cards  game  (on-poke:ag mark vase)  [cards this]
-              %handle-http-request
-                (handle-http !<([@ta inbound-request:eyre] vase))
+              =/  pre-state  !<([%zero game-state] on-save:ag)
+              =^  cards  game  (on-poke:ag mark vase)  ::[cards this]
+              =/  post-state  !<([%zero game-state] on-save:ag)  
+              =/  upcard  
+                :*  %give 
+                    %fact 
+                    ~[/mines-sub] 
+                    %mines-update 
+                    !>(`update`[%upstate gstat=playing.post-state bdims=dims.post-state tboard=tiles.post-state])
+                ==
+              :_  this  (snoc cards upcard)
+          %handle-http-request
+            (handle-http !<([@ta inbound-request:eyre] vase))
           ==  ::End ?+  
         ::End $-arm
           ++  handle-http 

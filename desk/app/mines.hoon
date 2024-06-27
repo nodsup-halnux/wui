@@ -3,8 +3,9 @@
 ::    ~lagrev-nocfep and ~tamlut-modnys
 ::
 /-  *mines
-/+  dbug, ms-wui, 
-    default-agent
+/+  dbug, ms-wui, default-agent
+::  Set for our ~?  conditional gates to fire
+=/  debugmode  %.n
 ::
 |%
 +$  versioned-state
@@ -25,8 +26,11 @@
 |_  =bowl:gall
 +*  this     .
     default  ~(. (default-agent this %|) bowl)
+::
 ++  on-init   on-init:default
+::
 ++  on-save   !>(state)
+::
 ++  on-load
   |=  old=vase
   ^-  [(list card) _this]
@@ -35,20 +39,14 @@
   %=  this
     state  !<(state-zero old)
   ==
+::
 ++  on-poke
   |=  [=mark =vase]
   ^-  [(list card) _this]
+  ~?  debugmode  ~&  "%mines on-poke"  "arm hit"
   ?>  ?=(%mines-action mark)
   =/  act  !<(action vase)
   ?-    -.act
-      ::  This exists just to test the Sail Display
-      %set-playing 
-       ~&  act
-       :-  ~
-        :: State portion of two cell.
-        %=  this
-          playing  stat.act
-        ==
     ::  Game is unfinished - this is a bit harder
     :: to implement than just checking if num tiles = 
     :: L*W of board.  Will leave it blank for later.
@@ -295,18 +293,62 @@
         %flag  'F'
       ==
     $(j +(j), qrose [blit qrose])
+    :: FE Testing moves are below.
+    :: Do Nothing Move
+    %dn
+      `this
+    :: Set a contrived board for testing FE, 
+    ::  and set win/lose state.
+    %ranboard
+      =/  row  (sub x.rc.act 1)
+      =/  col  (sub y.rc.act 1)
+      =/  md  mode.act
+      =/  symb  ?:  =(md 0)  %flag  %mine
+      =/  override 
+        ?:  ?&((lte row 4) (lte row 4))  !!
+            ::  We need a zero or one.
+            ?:  (gte md 2)  !!
+            ::  Now build and return it!
+            :*
+              ::LT
+              [[(add 0 md) (add 0 md)] symb]
+              ::RT
+              [[(sub row md) (add 0 md)] symb]
+              ::Middle-ish
+              [[(div row 2) (div col 2)] symb]
+              ::LB
+              [[(add 0 md) (sub col md)] symb]
+              ::RB
+              [[(sub row md) (sub col md)] symb]
+            ~
+            ==
+      :: Last slot of =/
+      ?~  override  !!
+        :-  ~
+        %=  this
+          dims  [x.rc.act y.rc.act]
+          playing  stat.act
+          tiles  (my override)
+        ==
   ==  :: action
 ::
 ++  on-peek   on-peek:default
+::
 ++  on-arvo   on-arvo:default
 :: The default library is set to crash!
 :: So put in a dummy subscription instead.
 :: Should really ack this like a real man.
 ++  on-watch  
-  |=  =path
-  ^-  (quip card _this)  `this
-
+    |=  =path  
+        ^-  (quip card _this)
+        ?~  path  ~&  "Warning: on-watch path is ~ (!!)"  !!
+            ~&  "on-watch %mines app FE subscribe... "  ~&  "path is:"  ~&  path
+            ::give a fact back - let FE know it sub was OK.
+            :_  this  [%give %fact ~[path] %mines-update !>(`update`[%init ack=1])]~
+::
 ++  on-leave  on-leave:default
+::
 ++  on-agent  on-agent:default
+::
 ++  on-fail   on-fail:default
 --

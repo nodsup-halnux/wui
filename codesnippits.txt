@@ -812,3 +812,48 @@
                   ['c' (numb c.upd)]
               ==
 
+
+    |^
+      ::$ arm
+        =/  override  (gen-board type.act rc.act) 
+        ?~  override  !!
+          :-  ~
+          %=  this
+            playing  stat.act
+            tiles  (my override)
+          ==
+      :: end $
+      ++  gen-board
+      |=  [type=@ud dims=coord]
+        ^-  (list [coord tile])
+        =/  row  (sub x.dims 1)  =/  col  (sub y.dims 1)
+        =/  symb  ?:  =(type 0)  %flag  %mine
+        ::  Board must be at least 5 by 5
+        ?:  ?&((lte row 4) (lte row 4))  !!
+          ::  We need a zero or one.
+          ?:  (gte type 2)  !!
+          ::  Now build and return it!
+          :*
+            ::LT
+            [[(add 0 type) (add 0 type)] symb]
+            ::RT
+            [[(sub row type) (add 0 type)] symb]
+            ::Mid
+            [[(add (div row 2) (mod row 2)) (add (div col 2) (mod col 2))] symb]
+            ::LB
+            [[(add 0 type) (sub col type)] symb]
+            ::RB
+            [[(sub row type) (sub col type)] symb]
+          ~
+          ==
+    --
+
+++  jsonify 
+    |=  [p=coord q=tile]
+        %-  pairs:enjs:format
+          :~  
+              ['x' (numb:enjs:format x.p)]
+              ['y' (numb:enjs:format y.p)]
+              ['sq' [%s q]]
+          ==
+
