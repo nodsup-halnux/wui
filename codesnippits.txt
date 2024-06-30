@@ -939,3 +939,10 @@
             :: just get sent as an upstate card to FE anyways.  It won't
             :: make any difference to our game state.
             ::=/  pre-state  !<([%zero game-state] on-save:ag)
+
+
+:: Does TTT need a check-diff function?
+
+              ?:  ?|  =(board.post-state ~)
+                      (check-diff board.pre-state board.post-state)
+                  ==

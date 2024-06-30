@@ -16,14 +16,16 @@ In this document, each test performed is listed.
 [V]  Set a new game What happens?
 [V]  Do one more half board move.
 
-In both cases, the player must re-bind the FE to BE - 
-as upstate only transmit one move at a time.
+If new game made and display gives a warning,
+player must refresh the page.
 
 How can the player rebind the board? GET request.
-Hard Reset with |nuke and |revive.
 
 One issue:  Between bunting and newgame, the board does not update.
 Player has to make another get request.
+
+Check-diff is overkill, but it stops non-moves from being sent to FE currently.
+This can be refined later.
 
 ### Mines App:
 
