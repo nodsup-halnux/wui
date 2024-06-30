@@ -2,8 +2,8 @@
 /-  *mines
 :: Our Sail page is a gate that renders HTML that we
 ::  serve to our localhost website.
-::  Bowl and gamestate supplied to gate. Bowl isn't
-::  currently used, but kept for generality.
+::  Bowl and gamestate supplied to gate. Bowl
+::  currently used to fish out our.bowl for http-api JS
 |=  [bol=bowl:gall mstate=[%zero game-state]]
   |^  ^-  octs
 ::  The nested gate calls below produce a format chain
@@ -15,6 +15,7 @@
   ^-  manx
 
 :: Generate a list of cells to iterate on.
+:: In the event dims is [0 0], clist will be ~
 =/  clist=(list (list coord))  
   (make-keys x.dims.mstate y.dims.mstate)
 ::  Easier to type names than obscure utf-8 chars.
@@ -51,13 +52,15 @@
     ;p: Use console pokes to set moves.  Refresh the page to see the results.  
     ;p: Counting for board positions starts from zero.
     ;p:  See the /sur files for details on moves. 
-    ::  ~? seemed to be causing a nasty mull-grow error
-    ::  switching to ?: seemed to help.
-    ::  if you bake your map, you can get lost ~
-    ;+  ?.  ?&((lte x.dims.mstate 20) (lte y.dims.mstate 20))
-          ::F
-          ;div.start:  Board height and width cannot exceed 20. Please resize board.
-          ::T: Display our board then!
+    ::  A bunted dims means we just booted with no %start.
+    ;+  ?:  ?&(=(dims.mstate [0 0]))
+      ::T:  App has just booted.
+      ;div.start: Bunted gamestate detected. Please start a game and refresh page.
+      ::F:  As long as dims is defined, we can make a board.
+        ?.  ?&((lte x.dims.mstate 20) (lte y.dims.mstate 20))
+          ::  F:  Board is too big, remind user to properly size.
+          ;div.start:  Board height or width ≥ 20. Please resize board, and refresh page.
+        :: F: All pre-tests passed. We have dims so load a board.
           ;div.contain(style (board-width y.dims.mstate))
             :: First turn pulls every row.
             ;*  ?~  clist  !!
@@ -92,10 +95,12 @@
                               %7  "7"
                               %8  "8"
                             %flag  flag.utfsymbol
+                            ::  Dead men don't see the mines they step on,
+                            ::  but we show it for completeness.
                             %mine  mine.utfsymbol
                           ==
                         ;div(class "square {xtra-class}", id "{<x.rc>}-{<y.rc>}"): {symbol}
-                        ::F Case - not tested.
+                        ::F Case - not tested or present. Generate square and fill with dot.
                         ;div(class "square", id "{<x.rc>}-{<y.rc>}"): {dot.utfsymbol}
                 == ::div board
           ==  ::div contain
@@ -112,10 +117,13 @@
       ?:  (lth wid 999)
         "width:{<wid>}px;"
         =/  convert  (oust [1 1] <wid>)  "width:{convert}px;"
-
+::
 ::  Colors: espresso and yellow-orange.
+::
 ++  body-colors
   ^-  tape  "background-color:#333333;color:#c6a615;"
+::  Simple gate mapping game status to colors.
+::
 ++  board-colors
   |=  stat=status
     ^-  main=tape 
@@ -124,7 +132,7 @@
       %win  "background-color:green;color:white;"
       %lose  "background-color:red;color:white;"
     ==
-
+::
 ::  This gate generates keys for our board map.
 ++  make-keys 
   |=  [rmax=@ud cmax=@ud]
@@ -139,12 +147,14 @@
           row  +(row)
         ==
         llcord
+::
 +$  css-struct  
   $:
     gridprop=tape
     cell-h-w=tape
 ==
-::  Inner support loop for make-keys. Gets a row of  keys.
+::
+::  Inner support loop for make-keys. Gets a row of keys.
 ++  get-row
   |=  [row=@ud cmax=@ud]
     ^-  (list coord)
@@ -171,9 +181,6 @@
     }
     h1 {
       font-size: 36pt;
-    }
-    div  {  
-      font-size: 16pt;
     }
     .start {
       width: 50%;
@@ -229,24 +236,39 @@
 ::  api.subscribe will request to Eyre.  
 ::  Will hit app's the ++on-watch arm.
 ::
+::  Non intuitively, x is row, y is col. 
+::  Origin is at Top Left corner.
+::
 ::  function check_callback handles our %upstate responses 
 ::  from BE. Mainly used to update the board.
 ::  
+::  Note that in check_callback, we handle the case where
+::  the user makes a new game mid-game.  This is checked
+::  by always comparing the board dims with the dims
+::  provided by the upstate card.  An error message will
+::  result if there is a difference, reminding the user
+::  to refresh the page.
+::
 ::  Curly braces are escaped \{ as compiler interprets
 ::  these in a tape as starting an interpolation site.
 ::
 ::  In closing, the unpleasant look of JS
-::  slammed in a gate beats dealing a bloated 
+::  slammed in a gate beats dealing with a bloated 
 ::  node_modules folder, and minified code.
 
 ++  script
   |=  our-bowl=tape
   ^-  tape 
   """
+
+
     import urbitHttpApi from 'https://cdn.skypack.dev/@urbit/http-api';
 
     const api = new urbitHttpApi('', '', 'mines');
     api.ship = '{our-bowl}';
+
+    const rows = {<x.dims.mstate>};
+    const cols = {<y.dims.mstate>};
 
     var subID = api.subscribe(\{
       app: 'mines',
@@ -264,8 +286,6 @@
       }
     }
 
-  // Non intuitively, x is row, y is col. 
-  // origin is at TL corner!
   function board_set(uparr) \{
       for (let i = 0; i < uparr.length; i++) \{
         let item = uparr[i];
@@ -318,9 +338,6 @@
         flagCol = fontCol;
         mineCol = fontCol;
       }
-      else \{
-        console.log("Error: Unknown Game State detected.");
-      }
 
       for (let i = 0; i < rmax; i++) \{
         for (let j = 0; j < cmax; j++) \{
@@ -342,6 +359,18 @@
       console.log('Error: recieved an error from the back-end');
     }
 
+    function dims_changed() \{
+      const containDiv = document.querySelector('.contain');
+      if (containDiv) \{
+        containDiv.innerHTML = '';
+        containDiv.className = 'start';
+        containDiv.style.width = '';
+        const warnDiv = document.createElement('div');
+        warnDiv.textContent = 'Warning: Board dimensions changed mid-game. Refresh page.';
+        containDiv.appendChild(warnDiv);
+      }    
+    }
+
     function check_callback(upd) \{
       console.log(upd);
       if ('init' in upd) \{
@@ -350,9 +379,16 @@
       else if ('upstate' in upd) \{
         let rmax = upd.upstate.rmax;
         let cmax = upd.upstate.cmax;
-        board_scrub(rmax, cmax);
-        board_set(upd.upstate.board);
-        state_set(rmax, cmax, upd.upstate.gstat);
+
+        if ((rmax  !=  rows) ||  (cmax  !=  cols)) \{
+          console.log("Warning: Board dimensions have changed! Refresh page and start again.");
+          dims_changed();
+        }
+        else \{
+          board_scrub(rmax, cmax);
+          board_set(upd.upstate.board);
+          state_set(rmax, cmax, upd.upstate.gstat);
+        }
       }
     }
 

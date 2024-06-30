@@ -29,19 +29,23 @@
       [%view ~]            :: display tiles (seen board)
       [%debug ~]           :: display whole board
       [%start =coord n=@]  :: start game
-      ::  These two states have been added, to assist
-      ::  In debugging. Also, the game app isn't finished.
+      ::  The below actions are for testing only.
+      ::  These actions have been added, to assist
+      ::  In debugging. 
       [%check-win ~]   
-      ::  flag and test call this.
-      [%set-playing stat=status]
+      :: random board 1 and 2. Just for harder FE testing.
+      :: mode is 1 or 2 for mode.
+      [%ranboard mode=@ud rc=coord stat=status]
+      ::  do nothing move to test sig/no move logic.
+      [%dn ~]
   ==
 +$  update
       ::  Doing a GET request in Browser will always load 
     ::  the entire board, based on current state.
       ::Sent only for sub request (spawned by GET)
     $%  [%init ack=@ud]
-        ::  FE only wants update about player
-        ::  who just moved, not next player.
-        [%upstate gstat=status who=@ud r=@ud c=@ud]
+        ::  FE only wants current tiles, game state,
+        ::  and board size.
+        [%upstate gstat=status bdims=coord tboard=tiles]
   ==
 --

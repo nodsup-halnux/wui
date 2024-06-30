@@ -2,7 +2,6 @@
 
 In this document, each test performed is listed.  
 
-
 ### TTT App:
 
 [V]  |nuke and |revive, successful Arvo bind.
@@ -24,9 +23,21 @@ How can the player rebind the board? GET request.
 Hard Reset with |nuke and |revive.
 
 One issue:  Between bunting and newgame, the board does not update.
-Player has to make anotehr get request.
+Player has to make another get request.
 
 ### Mines App:
 
+[V]  |nuke and |revive, successful Arvo bind.
+[V]  Make a get request, and FE sub works. Get message about %starting a new game
+[V]  Start a new game that is too big. Get a message about shrinking the board
+[V]  Start a normal sized game.
+[V]  Refresh page, check board loads.
+[V]  Test board until you get a space fill move.
+[V]  Now start a new game of a different size. Test a space. Do you get a message about the board being resized?
+[V]  Refresh the page, check the board loads correctly.
+[V]  Play the game until a win/lose occurs.
+[V]  Try ranboard mode=1
+[V]  Try ranboard mode=0
 
-####
+In general, the player reloads the page if they change the board size midgame, 
+make a board >= 20 in size, or if they have booted without a %start.

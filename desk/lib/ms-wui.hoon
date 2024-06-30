@@ -2,6 +2,7 @@
 /+  default-agent, agentio
 ::  our path to our frontpage display.
 /=  display  /app/mines/display
+::  Toggle debug mode for console.
 =/  debugmode  %.y
 |%
 +$  cag  card:agent:gall
@@ -16,10 +17,7 @@
 ::
     ++  on-init
     ~?  debugmode  
-      ~&  "on-init:ms-wui "  ":Initializing MS-WUI"
-      ::  We don't use (quip card this), as we don't have 
-      ::  a structure def core up top - system defs 
-      ::  are used instead.
+      ~&  "on-init:ms-wui: "  ":Initializing MS-WUI"
       ^-  (quip cag _this)
       ::  This is an arvo call that binds the path 
       ::  /ttt/display to localhost:8080.  We do not 
@@ -37,13 +35,12 @@
             game
           (on-load:ag old-state)
         [cards this]
-::  Poke Arm - most fleshed out because we interact this way
+::  Poke Arm - most fleshed out because we interact this way.
     ++  on-poke
       |=  [=mark =vase]
         ^-  (quip cag _this)
         ::  A bar-ket is stuffed in the gate, so as to
-        ::  compartmentalize our little HTTP
-        ::  server code into the on-poke arm.
+        ::  compartmentalize our HTTP server code.
         |^ 
           ::Our $-arm
           ^-  (quip cag _this)
@@ -51,17 +48,32 @@
               ~&  "ms-wui: Poke request. Mark:"  mark
           ?+  mark
             :: If not an HTTP request, send straight to %mines
-              =/  pre-state  !<([%zero game-state] on-save:ag)
-              =^  cards  game  (on-poke:ag mark vase)  ::[cards this]
+              =^  cards  game  (on-poke:ag mark vase)
               =/  post-state  !<([%zero game-state] on-save:ag)  
-              =/  upcard  
-                :*  %give 
-                    %fact 
-                    ~[/mines-sub] 
-                    %mines-update 
-                    !>(`update`[%upstate gstat=playing.post-state bdims=dims.post-state tboard=tiles.post-state])
-                ==
-              :_  this  (snoc cards upcard)
+              ::  If dims is bunted, it means we have just booted with no %start
+              ?:  =(dims.post-state [0 0])
+              ::T:  Don't send an upstate.
+                ~&  "%mines booted: please %start a game and load the display page."
+                `this
+                ::F:  We have %started, but not %tested.  Don't send a card.
+                ?:  =(tiles.post-state ~)
+                    ~?  debugmode  
+                      ~&  "~ tiles map,"  " no card sent." 
+                    `this
+                  ::F:  A game is running.
+                    ~?  debugmode  
+                      ~&  "Sending upstate card"  " to FE." 
+                  =/  upcard  
+                    :*  %give 
+                        %fact 
+                        ~[/mines-sub] 
+                        %mines-update 
+                        !>(`update`[%upstate gstat=playing.post-state bdims=dims.post-state tboard=tiles.post-state])
+                    ==
+                  :_  this  (snoc cards upcard)
+          ::  An Eyre GET request routs here.
+          ::  If we start our app, and load display directly,
+          :: display.hoon must handle the bunted case.
           %handle-http-request
             (handle-http !<([@ta inbound-request:eyre] vase))
           ==  ::End ?+  
@@ -113,7 +125,7 @@
                 ==
                 [~ dat]
 ::
-          :: Used to generate a non-200 series response.
+          :: Used to generate a response.
           :: Just a stack of (complex) cards returned.
           ++  give-http
             |=  [rid=@ta hed=response-header:http dat=(unit octs)]

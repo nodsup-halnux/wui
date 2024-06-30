@@ -857,3 +857,85 @@
               ['sq' [%s q]]
           ==
 
+
+          ::  (set [coord tile])
+          =/  kvset  `(set [coord tile])`(~(gas in `(set [coord tile])`~) kvlist)
+          :: duplicates should be eliminated by this point
+          ::  (list [coord tile])
+          =/  uni-kvlist  `(list [coord tile])`~(tap in kvset)
+          ~&  "unique kvlist is:"  ~&  uni-kvlist
+          =/  jtap  (turn uni-kvlist jsonify)
+
+~[
+  [[x=4 y=1] %0]                             /
+  [[x=4 y=2] %0]
+  [[x=1 y=1] %0]
+  [[x=1 y=2] %1]
+  [[x=2 y=1] %0]
+  [[x=3 y=2] %0]
+  [[x=2 y=4] %1]
+  [[x=1 y=0] %0]
+  [[x=4 y=0] %0]
+  [[x=3 y=0] %0]
+  [[x=3 y=1] %0]
+  [[x=4 y=4] %0]
+  [[x=0 y=0] %0]
+  [[x=2 y=0] %0]
+  [[x=0 y=1] %0]
+  [[x=3 y=3] %0]
+  [[x=0 y=2] %1]
+  [[x=2 y=3] %1]
+  [[x=3 y=4] %0]
+  [[x=4 y=3] %0]
+  [[x=2 y=2] %1]
+]
+
+~[[[x=4 y=1] %0] 
+[[x=4 y=2] %0] 
+[[x=2 y=4] %0] 
+[[x=4 y=0] %0] 
+[[x=4 y=4] %0] 
+[[x=3 y=4] %0] 
+[[x=4 y=3] %0] 
+
+[[x=1 y=4] %1]]
+
+
+                ?:  ?|  =(tiles.post-state ~)
+                      (check-diff tiles.pre-state tiles.post-state)
+                    ==
+
+
+::
+          ::  Wrapper that calls get-diff and returns
+          :: a loobean for tests.
+          ++  check-diff  
+            |=  [bold=tiles bnew=tiles]
+              ^-  ?  =((get-diff bold bnew) ~)
+::
+          ++  get-diff
+            |=  [bold=tiles bnew=tiles]
+              ^-  (list [coord tile])
+                =/  smold  ,(set [coord tile])
+                =/  oldset  (get-set bold)
+                =/  newset  (get-set bnew)
+                =/  difflist  
+                  ~(tap in `smold`(~(dif in newset) oldset))
+                  difflist
+            ::  Makes get-diff a bit cleaner.
+::
+            ++  get-set
+              |=  aboard=tiles
+              ^-  (set [coord tile])
+                  %-  
+                    %~  gas  
+                        in 
+                      ^-  (set [coord tile])  ~
+                      %~  tap 
+                        by 
+                      aboard
+
+            :: pre-state not needed, as moves that don't affect tiles map
+            :: just get sent as an upstate card to FE anyways.  It won't
+            :: make any difference to our game state.
+            ::=/  pre-state  !<([%zero game-state] on-save:ag)
