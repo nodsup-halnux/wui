@@ -1,14 +1,14 @@
 ##  %wui - Web User Interface
 
 July 1st, 2024
-Reward: 2 Stars
+Reward: 3 Stars
 ID: ???
 Grantee:  ~nodsup-halnux
 Champion: ~tamlut-modnys
 
 ##  Description:
 
-For the new App School curriculum and Docs website, students will iteratively build a board games as they learn how urbit apps are constructed. Currently, the method of debugging and printing out to terminal (as a form of app interaction) is non-optimal.  
+For the new App School curriculum and Docs website, students will iteratively build a board games as they learn how Urbit apps are constructed. Currently, the method of debugging and printing out to terminal (as a form of app interaction) is non-optimal.  
 
 We propose a Web-User-Interface (WUI) to assist students in their Gall app projects.  More specifically, students will use WUI as a wrapper library around their Tic-Tac-Toe and Minesweeper apps, which will display the state of their app via a Sail webpage.
 
@@ -48,3 +48,18 @@ After completion of Minesweeper and Tic-Tac-Toe WUI wrappers,  the Grantee must 
     •  provide adjustments to the two said libraries, if other users discover bugs.
     •  provide minor adjustments to the libraries (within scope), as teaching requirements change in the future.
 
+###  Payment Terms:
+
+The Grantee will be compensated as follows:
+
+**Milestone 1: Two Stars:**
+    •  For completed* versions of both libraries, as per the Champion's feedback and specifications.
+        •  *Note:  It is expected that some teaching requirements will change, so some features may change after submission.
+        These changes are handled in Milestone #2.
+
+
+**Milestone 2: One Star**
+    •  For assisting the Champion with documentation, testing, acting as a point of contact for students. Also for providing help
+    with the next App School cohort (within the scope of WUI), should this arise in the near future.
+
+### END
